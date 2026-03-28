@@ -1,0 +1,52 @@
+Step Details
+Info Version: 1.2
+Step name: Reposo Ojos Cerrados (EC)
+StartDate (firstEEGtimestamp): 1774305541840
+Device class: ENOBIO
+Communication type: WiFi
+Device ID: NE-Wifi(00:07:80:0D:83:5B)
+Software's version: NIC 2.1.4.1
+Firmware's version: 3031
+Operative system: MAC v0
+SDCard Filename: NONE
+Additional channel: NONE
+
+EEG Settings
+Total number of channels: 8
+Number of EEG channels: 3
+Number of records of EEG: 7500
+EEG sampling rate: 500 Samples/second
+Effective EEG sampling rate: 500.019081 Samples/second
+EEG recording configured duration (s): 15
+Number of packets lost: 0
+Line filter status: OFF
+FIR filter status: OFF
+EOG correction filter status: OFF
+Reference filter status: OFF
+EEG units: nV
+EEG montage: 
+	Channel 1: Fpz
+	Channel 2: Cz
+	Channel 3: C3
+	Channel 4: Ch4
+	Channel 5: Ch5
+	Channel 6: Ch6
+	Channel 7: Ch7
+	Channel 8: Ch8
+Accelerometer data: ON
+
+Number of channels of Accelerometer: 3
+Accelerometer sampling rate: 100 Samples/second
+Accelerometer units: mm/s^2
+
+Trigger information:
+	Code	Description
+	1	FOCUS_LOST
+	2	MAX_FOCUS
+	3	
+	4	
+	5	
+	6	
+	7	
+	8	
+	9	

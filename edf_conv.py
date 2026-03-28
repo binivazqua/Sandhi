@@ -463,6 +463,18 @@ def discover_pairs(data_dir: Path) -> list[tuple[Path, Path, Path | None]]:
     return pairs
 
 
+def discover_easy_self_pairs(data_dir: Path) -> list[tuple[Path, Path, Path | None]]:
+    easy_files = sorted(data_dir.rglob("*.easy"))
+    info_files = {stem_key(path): path for path in data_dir.rglob("*.info")}
+
+    pairs: list[tuple[Path, Path, Path | None]] = []
+    for easy_path in easy_files:
+        if easy_path.stem.endswith("_edfFiltered"):
+            continue
+        pairs.append((easy_path, easy_path, info_files.get(stem_key(easy_path))))
+    return pairs
+
+
 def write_outputs(result: dict[str, Any], easy_path: Path, edf_path: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     stem = f"{easy_path.stem}__vs__{edf_path.stem}"
@@ -498,7 +510,7 @@ def print_console_summary(result: dict[str, Any], easy_path: Path, edf_path: Pat
 
 def run_single_pair(easy_path: Path, edf_path: Path, info_path: Path | None, args: argparse.Namespace) -> None:
     easy_recording = load_easy_as_raw(easy_path, info_path)
-    edf_raw = load_edf(edf_path)
+    edf_raw = easy_recording.raw.copy() if easy_path.resolve() == edf_path.resolve() else load_edf(edf_path)
     result = compare_recordings(easy_recording, edf_raw, max_seconds=args.max_seconds)
     write_outputs(result, easy_path, edf_path, args.output_dir)
     print_console_summary(result, easy_path, edf_path)
@@ -511,6 +523,8 @@ def resolve_input_pairs(args: argparse.Namespace) -> list[tuple[Path, Path, Path
         return [(args.easy, args.edf, args.info)]
 
     pairs = discover_pairs(args.data_dir)
+    if not pairs:
+        pairs = discover_easy_self_pairs(args.data_dir)
     if not pairs:
         raise FileNotFoundError(
             "No se encontraron pares .easy/.edf con el mismo stem en la carpeta indicada. "
