@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from dataclasses import dataclass
 import json
 import math
 import os
@@ -45,6 +46,13 @@ SOURCE_NOTES = [
 ]
 
 
+@dataclass
+class AnalysisJob:
+    easy: Path
+    edf: Path
+    info: Path | None
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -52,9 +60,26 @@ def parse_args() -> argparse.Namespace:
             "con enfasis en preservar informacion util para potenciales lentos."
         )
     )
-    parser.add_argument("--easy", required=True, type=Path, help="Ruta al archivo .easy")
-    parser.add_argument("--edf", required=True, type=Path, help="Ruta al archivo .edf")
+    parser.add_argument("--easy", type=Path, help="Ruta al archivo .easy")
+    parser.add_argument("--edf", type=Path, help="Ruta al archivo .edf")
     parser.add_argument("--info", type=Path, help="Ruta al archivo .info")
+    parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Activa modo interactivo para seleccionar archivos sin escribir rutas complejas.",
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=Path("data"),
+        help="Carpeta base usada por el modo interactivo para listar candidatos.",
+    )
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=1,
+        help="Numero de pares a procesar en modo interactivo.",
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -82,6 +107,101 @@ def parse_args() -> argparse.Namespace:
 
 def sanitize_stem(text: str) -> str:
     return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in text)
+
+
+def _prompt_int(message: str, default: int, minimum: int = 1) -> int:
+    while True:
+        raw = input(f"{message} [{default}]: ").strip()
+        if not raw:
+            return default
+        if raw.isdigit() and int(raw) >= minimum:
+            return int(raw)
+        print(f"Entrada invalida. Ingresa un entero >= {minimum}.")
+
+
+def _select_path_interactive(
+    label: str,
+    candidates: list[Path],
+    allow_empty: bool = False,
+    default: Path | None = None,
+) -> Path | None:
+    print(f"\n{label}")
+    if default is not None:
+        print(f"  Default: {default}")
+
+    if candidates:
+        for idx, path in enumerate(candidates, start=1):
+            print(f"  [{idx}] {path}")
+        print("  Puedes ingresar el numero o pegar una ruta completa.")
+    else:
+        print("  No hay candidatos listados. Pega una ruta completa.")
+
+    if allow_empty:
+        print("  Enter vacio para omitir.")
+
+    while True:
+        raw = input("> ").strip()
+        if not raw:
+            if default is not None:
+                return default
+            if allow_empty:
+                return None
+            print("Este valor es obligatorio.")
+            continue
+
+        if raw.isdigit() and candidates:
+            idx = int(raw)
+            if 1 <= idx <= len(candidates):
+                return candidates[idx - 1]
+            print(f"Indice fuera de rango. Usa 1..{len(candidates)}")
+            continue
+
+        chosen = Path(raw).expanduser()
+        if chosen.exists() and chosen.is_file():
+            return chosen
+        print("Ruta invalida o archivo inexistente.")
+
+
+def _discover_candidates(data_dir: Path, pattern: str) -> list[Path]:
+    if not data_dir.exists():
+        return []
+    return sorted(path for path in data_dir.rglob(pattern) if path.is_file())
+
+
+def _resolve_jobs(args: argparse.Namespace) -> list[AnalysisJob]:
+    explicit_mode = args.easy is not None or args.edf is not None
+    if explicit_mode:
+        if not (args.easy and args.edf):
+            raise ValueError("Si pasas --easy o --edf, debes pasar ambos.")
+        return [AnalysisJob(args.easy, args.edf, args.info)]
+
+    data_dir = args.data_dir
+    easy_candidates = _discover_candidates(data_dir, "*.easy")
+    edf_candidates = _discover_candidates(data_dir, "*.edf")
+
+    print("Modo interactivo de seleccion de rutas")
+    print(f"Base de busqueda: {data_dir}")
+    print(f"Candidatos .easy: {len(easy_candidates)}")
+    print(f"Candidatos .edf: {len(edf_candidates)}")
+
+    jobs_count = _prompt_int("Cuantos pares quieres analizar", default=max(args.jobs, 1), minimum=1)
+    jobs: list[AnalysisJob] = []
+    for idx in range(1, jobs_count + 1):
+        print(f"\n=== Par {idx}/{jobs_count} ===")
+        easy_path = _select_path_interactive("Selecciona archivo .easy:", easy_candidates, allow_empty=False)
+        assert easy_path is not None
+        info_default = easy_path.with_suffix(".info") if easy_path.with_suffix(".info").exists() else None
+        edf_path = _select_path_interactive("Selecciona archivo .edf:", edf_candidates, allow_empty=False)
+        assert edf_path is not None
+        info_path = _select_path_interactive(
+            "Selecciona archivo .info (opcional):",
+            _discover_candidates(data_dir, "*.info"),
+            allow_empty=True,
+            default=info_default,
+        )
+        jobs.append(AnalysisJob(easy=easy_path, edf=edf_path, info=info_path))
+
+    return jobs
 
 
 def select_channels(common_easy: list[str], common_edf: list[str], requested: str | None) -> tuple[list[str], list[str]]:
@@ -349,10 +469,9 @@ def build_markdown_report(
     return "\n".join(lines) + "\n"
 
 
-def main() -> None:
-    args = parse_args()
-    easy_recording = load_easy_as_raw(args.easy, args.info)
-    edf_raw = load_edf(args.edf)
+def _run_job(job: AnalysisJob, args: argparse.Namespace) -> None:
+    easy_recording = load_easy_as_raw(job.easy, job.info)
+    edf_raw = load_edf(job.edf)
 
     common_easy, common_edf = pick_common_channels(easy_recording.raw, edf_raw)
     easy_chs, edf_chs = select_channels(common_easy, common_edf, args.channels)
@@ -376,7 +495,7 @@ def main() -> None:
 
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = sanitize_stem(f"{args.easy.stem}__vs__{args.edf.stem}")
+    stem = sanitize_stem(f"{job.easy.stem}__vs__{job.edf.stem}")
 
     raw_plot = output_dir / f"{stem}_raw_overlay.png"
     demean_plot = output_dir / f"{stem}_demeaned_overlay.png"
@@ -392,7 +511,7 @@ def main() -> None:
         sfreq,
         easy_chs,
         raw_plot,
-        title=f"Raw overlay: {args.easy.name} vs {args.edf.name}",
+        title=f"Raw overlay: {job.easy.name} vs {job.edf.name}",
         demean=False,
         seconds=min(args.plot_seconds, compared_seconds),
     )
@@ -402,7 +521,7 @@ def main() -> None:
         sfreq,
         easy_chs,
         demean_plot,
-        title=f"Demeaned overlay: {args.easy.name} vs {args.edf.name}",
+        title=f"Demeaned overlay: {job.easy.name} vs {job.edf.name}",
         demean=True,
         seconds=min(args.plot_seconds, compared_seconds),
     )
@@ -411,15 +530,15 @@ def main() -> None:
         edf_uv,
         easy_chs,
         hist_plot,
-        title=f"Amplitude distributions: {args.easy.name} vs {args.edf.name}",
+        title=f"Amplitude distributions: {job.easy.name} vs {job.edf.name}",
     )
     plot_metric_heatmap(stats_rows, heatmap_plot)
 
     write_csv(stats_rows, csv_path)
     payload = {
-        "easy": str(args.easy),
-        "edf": str(args.edf),
-        "info": str(args.info) if args.info else None,
+        "easy": str(job.easy),
+        "edf": str(job.edf),
+        "info": str(job.info) if job.info else None,
         "comparison_sampling_rate_hz": sfreq,
         "compared_duration_seconds": compared_seconds,
         "summary": summary,
@@ -434,7 +553,7 @@ def main() -> None:
     }
     json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
     md_path.write_text(
-        build_markdown_report(args.easy, args.edf, stats_rows, summary, sfreq, compared_seconds),
+        build_markdown_report(job.easy, job.edf, stats_rows, summary, sfreq, compared_seconds),
         encoding="utf-8",
     )
 
@@ -445,6 +564,27 @@ def main() -> None:
     print(f"Saved stats CSV: {csv_path}")
     print(f"Saved summary JSON: {json_path}")
     print(f"Saved report MD: {md_path}")
+
+
+def main() -> None:
+    args = parse_args()
+    jobs = _resolve_jobs(args)
+
+    failures = 0
+    for idx, job in enumerate(jobs, start=1):
+        print(f"\nProcesando par {idx}/{len(jobs)}")
+        print(f"  easy: {job.easy}")
+        print(f"  edf:  {job.edf}")
+        if job.info is not None:
+            print(f"  info: {job.info}")
+        try:
+            _run_job(job, args)
+        except Exception as exc:
+            failures += 1
+            print(f"Error en par {idx}: {exc}")
+
+    if failures:
+        raise RuntimeError(f"Fallaron {failures} de {len(jobs)} pares.")
 
 
 if __name__ == "__main__":
