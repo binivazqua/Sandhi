@@ -12,7 +12,7 @@ from typing import Any
 import mne
 import numpy as np
 
-
+# Bandas de frecuencia TÍPICAS, de acuerdo con Kilmesh (1999), Kornhuber y Deckee (1965) y Libet (1983)
 BANDS = {
     "delta": (1.0, 4.0),
     "theta": (4.0, 8.0),
@@ -22,22 +22,32 @@ BANDS = {
 }
 
 
-
+# Dataclass: arreglo aesthetic para objetos en python. Genera automáticamente init, repr, eq, etc. Ideal para estructuras de datos como esta.
 @dataclass
 class EasyRecording:
-    path: Path
-    info_path: Path | None
-    raw: mne.io.RawArray
-    sfreq: float
-    channel_names: list[str] 
-    eeg_uv: np.ndarray
-    markers: np.ndarray
+    """
+    Estructura custom de datos que contiene la señal en formato .easy y su metadada.
+    """
+    path: Path # ruta de origen
+    info_path: Path | None 
+    raw: mne.io.RawArray # objeto compatible con MNE con la señal en Volts.
+    raw: mne.io.RawArray 
+    sfreq: float # frecuencia de muestreo de señal
+    channel_names: list[str] # nombres de canales, idealmente extraídos de .info
+    eeg_uv: np.ndarray # señal EEG en microvolts, extraída de raw
+    markers: np.ndarray #eventos (markers)
     timestamps_ms: np.ndarray
     accelerometer: np.ndarray | None
-    metadata: dict[str, Any]
+    metadata: dict[str, Any] #dict de metadata default de NIC2
 
 
 def parse_args() -> argparse.Namespace:
+    """
+    Creamos un parser de args (un objeto improvisado donde 
+    se guardan atributos) para el cli y manejar input y 
+    outputs del script de forma flexible.
+
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Compara archivos NIC2 .easy/.info contra .edf y genera un reporte "
@@ -79,10 +89,20 @@ def parse_args() -> argparse.Namespace:
 
 
 def normalize_name(name: str) -> str:
+    """
+    Convierte un nombre de canal a una forma normalizada: 
+    minúsculas y solo letras/números. 
+    Iguala formatos .easy y .edf.
+
+    """
     return re.sub(r"[^a-z0-9]+", "", name.lower())
 
 
 def read_info_metadata(info_path: Path | None) -> dict[str, Any]:
+    """ 
+    Crea un dict de metadata a partir del contenido de un archivo .info, 
+    buscando patrones comunes (facilito).
+    """
     metadata: dict[str, Any] = {
         "channels": [],
         "sampling_rate_hz": None,
@@ -119,6 +139,9 @@ def read_info_metadata(info_path: Path | None) -> dict[str, Any]:
 
 
 def infer_easy_layout(num_cols: int) -> tuple[int, bool]:
+    """
+    Fail safe de inferencia de formato .easy basado en número de columnas.
+    """
     if num_cols in (10, 22, 34):
         return num_cols - 2, False
     if num_cols in (13, 25, 37):
@@ -130,6 +153,9 @@ def infer_easy_layout(num_cols: int) -> tuple[int, bool]:
 
 
 def infer_sfreq_from_timestamps(timestamps_ms: np.ndarray) -> float | None:
+    """
+    Estima la frecuencia de muestreo a partir de variaciones en las timestamps. 
+    """
     if timestamps_ms.size < 2:
         return None
     diffs = np.diff(timestamps_ms.astype(float))
@@ -141,8 +167,12 @@ def infer_sfreq_from_timestamps(timestamps_ms: np.ndarray) -> float | None:
         return None
     return 1000.0 / median_ms
 
+## ********************* CARGA DE DATOS ***************************** #
 
 def load_easy_as_raw(easy_path: Path, info_path: Path | None = None) -> EasyRecording:
+    """
+    Junta todo lo anterior y usa la estructura EasyRecording para cargar un .easy y su .info asociado (si existe),
+    """
     if not easy_path.exists():
         raise FileNotFoundError(f"No existe el archivo .easy: {easy_path}")
 
@@ -160,7 +190,7 @@ def load_easy_as_raw(easy_path: Path, info_path: Path | None = None) -> EasyReco
     if len(channel_names) != num_channels:
         channel_names = [f"Ch{i}" for i in range(1, num_channels + 1)]
 
-    eeg_uv = frame[:, :num_channels].astype(float) / 1000.0
+    eeg_uv = frame[:, :num_channels].astype(float) / 1000.0 # CONVERTIR A PICO VOLTS: CLAVE
     cursor = num_channels
     accelerometer = None
     if has_acc:
@@ -199,10 +229,15 @@ def load_easy_as_raw(easy_path: Path, info_path: Path | None = None) -> EasyReco
 
 
 def load_edf(edf_path: Path) -> mne.io.BaseRaw:
+    """
+    Wrapper de mne, para convertir un archivo .edf a un objeto Raw de MNE.
+    """
     if not edf_path.exists():
         raise FileNotFoundError(f"No existe el archivo .edf: {edf_path}")
     return mne.io.read_raw_edf(edf_path, preload=True, verbose="ERROR")
 
+
+# ******************** COMPARACIÓN DE EDF Y EASY ************************* #
 
 def pick_common_channels(easy_raw: mne.io.BaseRaw, edf_raw: mne.io.BaseRaw) -> tuple[list[str], list[str]]:
     edf_lookup = {normalize_name(name): name for name in edf_raw.ch_names}
