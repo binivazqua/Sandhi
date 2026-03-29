@@ -275,8 +275,13 @@ def prepare_comparison_arrays(
         target_sfreq,
     )
 
+# ********************* MÉTRICAS ESTADÍSTICAS CLAVE ************************+ #
 
 def safe_corrcoef(a: np.ndarray, b: np.ndarray) -> float:
+    """
+    Calcula correlación de pearson (correlación lineal) entre las señales de 
+    el formato .easy y el .edf para un canal dado, con manejo de casos edge (señales constantes o vacías).
+    """
     if a.size == 0 or b.size == 0:
         return float("nan")
     if np.std(a) == 0 or np.std(b) == 0:
@@ -285,6 +290,9 @@ def safe_corrcoef(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def summarize_bandpower(raw: mne.io.BaseRaw) -> dict[str, float]:
+    """
+    Se avienta el resumen de PSD por banda, usando el método de Welch de MNE, para un objeto Raw dado.
+    """
     spectrum = raw.compute_psd(fmin=1.0, fmax=45.0, verbose="ERROR")
     psd, freqs = spectrum.get_data(return_freqs=True)
     summary: dict[str, float] = {}
@@ -344,6 +352,18 @@ def compare_recordings(
     edf_raw: mne.io.BaseRaw,
     max_seconds: float,
 ) -> dict[str, Any]:
+    """
+    Función central que genera el reporte completo.
+    Pasos:
+    - Inicializa estructura de comparación (metadatos, canales comunes, etc.).
+    - Calcula bandpower para .easy y .edf.
+    - Por cada canal común:
+        - Calcula correlación, std, RMSE, diferencia media, peak-to-peak.
+        - Almacena en channel_metrics.
+        - Agrega métricas: mean_corr, median_corr, mean_rmse, mean_abs_diff.
+        - Genera interpretaciones basadas en umbrales (ej. "corr < 0.8 → revisar").
+    - Retorna dict estructurado.
+    """
     easy_common, edf_common = pick_common_channels(easy_recording.raw, edf_raw)
 
     comparison: dict[str, Any] = {
@@ -531,6 +551,10 @@ def write_outputs(result: dict[str, Any], easy_path: Path, edf_path: Path, outpu
 
 
 def print_console_summary(result: dict[str, Any], easy_path: Path, edf_path: Path) -> None:
+    """
+    Imprime resumen en terminal: canales comunes, sfreq, correlación media, RMSE.
+    Genera el yappeo. 
+    """
     print(f"\nComparacion: {easy_path.name} vs {edf_path.name}")
     print(f"Canales comunes: {result['common_channel_count']}")
     print(f"Sfreq .easy: {result['easy']['sampling_rate_hz']:.3f} Hz")

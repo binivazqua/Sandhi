@@ -2,13 +2,6 @@
 
 Exploratory branch for EEG quality checks and format comparison in Neuroelectrics workflows.
 
-## Objetivo
-
-Este repo tiene dos usos principales:
-
-1. Comparar exportaciones `.easy` vs `.edf` con métricas numéricas y reporte automático.
-2. Generar gráficos y estadísticos por canal para inspección visual de calidad.
-
 ## Scripts
 
 - `edf_conv.py`: comparación por pares y generación de `CSV + JSON + MD`.
@@ -24,7 +17,7 @@ pip install -r requirements.txt
 
 ## Flujo recomendado para futuros ensayos
 
-### 1) Pre-chequeo de integridad del lote
+### 1) Pre-check de "data integrity" -> que no tengamos "fuga de datos" o errores en el ensayo.
 
 Antes de correr análisis, valida que los archivos tengan contenido:
 
@@ -33,7 +26,7 @@ find data/test_XXX -type f \( -name '*.easy' -o -name '*.edf' -o -name '*.info' 
 wc -l data/test_XXX/*.easy
 ```
 
-Si un archivo aparece con `0` líneas o `0B`, debe excluirse o regenerarse.
+Si un archivo aparece con `0` líneas o `0B`, debe excluirse -> señal para repetir el ensayo.
 
 ### 2) Comparación automática por carpeta
 
