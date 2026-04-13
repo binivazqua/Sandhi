@@ -1,0 +1,175 @@
+{
+  "easy": {
+    "num_channels": 8,
+    "channel_names": [
+      "Pz",
+      "CP1",
+      "CP2",
+      "C4",
+      "C3",
+      "Cz",
+      "FC1",
+      "FC2"
+    ],
+    "sampling_rate_hz": 500.0,
+    "duration_seconds": 60.0,
+    "marker_count_nonzero": 0,
+    "accelerometer_present": true,
+    "info_file_present": true,
+    "device_hint": "Device class: ENOBIO",
+    "start_timestamp_ms": 1773086705755.0,
+    "end_timestamp_ms": 1773086765755.0,
+    "bandpower": {
+      "delta": 1.7619648008451298e-11,
+      "theta": 4.005165855108586e-12,
+      "alpha": 2.5989322038643045e-12,
+      "beta": 1.0808066459680846e-12,
+      "gamma": 6.760603901625181e-13
+    }
+  },
+  "edf": {
+    "num_channels": 11,
+    "channel_names": [
+      "Pz",
+      "CP1",
+      "CP2",
+      "C4",
+      "C3",
+      "Cz",
+      "FC1",
+      "FC2",
+      "X",
+      "Y",
+      "Z"
+    ],
+    "sampling_rate_hz": 500.0,
+    "duration_seconds": 60.0,
+    "highpass_hz": 0.1,
+    "lowpass_hz": 250.0,
+    "measurement_date": "2026-03-09T14:05:05+00:00",
+    "annotations_count": 0,
+    "annotation_descriptions": [],
+    "subject_info_present": true,
+    "bandpower": {
+      "delta": 7.720472887973772e-05,
+      "theta": 8.360225797382219e-05,
+      "alpha": 8.001492339468957e-05,
+      "beta": 7.026950030428078e-05,
+      "gamma": 4.996047577752686e-05
+    }
+  },
+  "common_channels": [
+    "Pz",
+    "CP1",
+    "CP2",
+    "C4",
+    "C3",
+    "Cz",
+    "FC1",
+    "FC2"
+  ],
+  "common_channel_count": 8,
+  "channel_metrics": [
+    {
+      "easy_channel": "Pz",
+      "edf_channel": "Pz",
+      "corr": 0.4622403371246215,
+      "easy_std_uv": 220.80498651458032,
+      "edf_std_uv": 28.60184234070396,
+      "rmse_uv": 23135.504692109036,
+      "mean_abs_diff_uv": 23134.55949318218,
+      "easy_peak_to_peak_uv": 838.5660000000024,
+      "edf_peak_to_peak_uv": 247.46122392614626
+    },
+    {
+      "easy_channel": "CP1",
+      "edf_channel": "CP1",
+      "corr": 0.3327340321232458,
+      "easy_std_uv": 70.3314670918879,
+      "edf_std_uv": 18.479791968619875,
+      "rmse_uv": 8399.707065930948,
+      "mean_abs_diff_uv": 8399.443772748267,
+      "easy_peak_to_peak_uv": 332.6420000000011,
+      "edf_peak_to_peak_uv": 140.56175399404898
+    },
+    {
+      "easy_channel": "CP2",
+      "edf_channel": "CP2",
+      "corr": 0.32457162103042453,
+      "easy_std_uv": 83.82551690852245,
+      "edf_std_uv": 17.498901846317064,
+      "rmse_uv": 16694.246535663762,
+      "mean_abs_diff_uv": 16694.055428904972,
+      "easy_peak_to_peak_uv": 388.0029999999979,
+      "edf_peak_to_peak_uv": 165.26484495307852
+    },
+    {
+      "easy_channel": "C4",
+      "edf_channel": "C4",
+      "corr": 0.9902780417650296,
+      "easy_std_uv": 17.176813899099567,
+      "edf_std_uv": 17.138953147804575,
+      "rmse_uv": 21681.026874628766,
+      "mean_abs_diff_uv": 21681.02674258754,
+      "easy_peak_to_peak_uv": 131.2739999999972,
+      "edf_peak_to_peak_uv": 128.4620847791257
+    },
+    {
+      "easy_channel": "C3",
+      "edf_channel": "C3",
+      "corr": 0.6464791692604006,
+      "easy_std_uv": 27.9273570058728,
+      "edf_std_uv": 20.78571127117263,
+      "rmse_uv": 27184.30039218777,
+      "mean_abs_diff_uv": 27184.291905050555,
+      "easy_peak_to_peak_uv": 207.90099999999646,
+      "edf_peak_to_peak_uv": 150.1046567483024
+    },
+    {
+      "easy_channel": "Cz",
+      "edf_channel": "Cz",
+      "corr": 0.9943518473565753,
+      "easy_std_uv": 16.92687624321589,
+      "edf_std_uv": 17.076435513778968,
+      "rmse_uv": 59076.88633573544,
+      "mean_abs_diff_uv": 59076.88630791092,
+      "easy_peak_to_peak_uv": 127.07699999999627,
+      "edf_peak_to_peak_uv": 127.58505113298239
+    },
+    {
+      "easy_channel": "FC1",
+      "edf_channel": "FC1",
+      "corr": 0.6852360936248081,
+      "easy_std_uv": 35.85742411289382,
+      "edf_std_uv": 19.629060644473043,
+      "rmse_uv": 39326.52034365691,
+      "mean_abs_diff_uv": 39326.51136178582,
+      "easy_peak_to_peak_uv": 175.66700000000435,
+      "edf_peak_to_peak_uv": 152.68438622110324
+    },
+    {
+      "easy_channel": "FC2",
+      "edf_channel": "FC2",
+      "corr": 0.7176220104455705,
+      "easy_std_uv": 28.87549617348284,
+      "edf_std_uv": 21.635266486082532,
+      "rmse_uv": 16887.153197807707,
+      "mean_abs_diff_uv": 16887.141199321813,
+      "easy_peak_to_peak_uv": 218.9629999999991,
+      "edf_peak_to_peak_uv": 152.10373794155794
+    }
+  ],
+  "interpretation": [
+    "El .easy conserva marcadores por muestra, timestamps Unix y, cuando existe, acelerometr\u00eda; eso es \u00fatil para alineaci\u00f3n temporal fina y control de artefactos por movimiento.",
+    "El .edf es el formato m\u00e1s portable para an\u00e1lisis y archivado, aunque en este archivo no aparecen anotaciones.",
+    "La similitud promedio entre se\u00f1ales es modesta; conviene revisar referencia, escalado, filtros aplicados al exportar y correspondencia exacta de canales."
+  ],
+  "comparison_sampling_rate_hz": 500.0,
+  "compared_duration_seconds": 10.0,
+  "aggregate_metrics": {
+    "mean_corr": 0.6441891440913345,
+    "median_corr": 0.6658576314426043,
+    "mean_rmse_uv": 26548.168179715045,
+    "mean_abs_diff_uv": 26547.98952643651
+  }
+}

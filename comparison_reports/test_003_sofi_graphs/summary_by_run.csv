@@ -1,0 +1,9 @@
+run,channels,mean_corr,mean_rmse_uv,mean_abs_diff_uv
+20260323164433_sandhi_sofi_001_Reposo Ojos Abiertos (EO)__vs__20260323164433_sandhi_sofi_001_Reposo Ojos Abiertos (EO),8,1.0,0.0,0.0
+20260323164457_sandhi_sofi_001_Reposo Ojos Cerrados (EC)__vs__20260323164457_sandhi_sofi_001_Reposo Ojos Cerrados (EC),8,1.0,0.0,0.0
+20260323164522_sandhi_sofi_001_Motor Imagery EO__vs__20260323164522_sandhi_sofi_001_Motor Imagery EO,8,1.0,0.0,0.0
+20260323164552_sandhi_sofi_001_Motor Imagery EC__vs__20260323164552_sandhi_sofi_001_Motor Imagery EC,8,1.0,0.0,0.0
+20260323165205_sandhi_sofi_002_Reposo Ojos Abiertos (EO)__vs__20260323165205_sandhi_sofi_002_Reposo Ojos Abiertos (EO),8,1.0,0.0,0.0
+20260323165230_sandhi_sofi_002_Reposo Ojos Cerrados (EC)__vs__20260323165230_sandhi_sofi_002_Reposo Ojos Cerrados (EC),8,1.0,0.0,0.0
+20260323165255_sandhi_sofi_002_Motor Imagery EO__vs__20260323165255_sandhi_sofi_002_Motor Imagery EO,8,1.0,0.0,0.0
+20260323165325_sandhi_sofi_002_Motor Imagery EC__vs__20260323165325_sandhi_sofi_002_Motor Imagery EC,8,1.0,0.0,0.0

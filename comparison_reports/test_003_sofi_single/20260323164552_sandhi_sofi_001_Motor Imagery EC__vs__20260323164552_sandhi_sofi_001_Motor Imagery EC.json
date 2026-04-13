@@ -1,0 +1,172 @@
+{
+  "easy": {
+    "num_channels": 8,
+    "channel_names": [
+      "Fpz",
+      "Cz",
+      "C3",
+      "Ch4",
+      "Ch5",
+      "Ch6",
+      "Ch7",
+      "Ch8"
+    ],
+    "sampling_rate_hz": 500.0,
+    "duration_seconds": 19.999,
+    "marker_count_nonzero": 0,
+    "accelerometer_present": true,
+    "info_file_present": true,
+    "device_hint": "Device class: ENOBIO",
+    "start_timestamp_ms": 1774305143905.0,
+    "end_timestamp_ms": 1774305163904.0,
+    "bandpower": {
+      "delta": 8.774335225247327e-12,
+      "theta": 2.08832939371564e-12,
+      "alpha": 1.7408717002187442e-12,
+      "beta": 2.216867118439373e-12,
+      "gamma": 2.2999361138578894e-12
+    }
+  },
+  "edf": {
+    "num_channels": 8,
+    "channel_names": [
+      "Fpz",
+      "Cz",
+      "C3",
+      "Ch4",
+      "Ch5",
+      "Ch6",
+      "Ch7",
+      "Ch8"
+    ],
+    "sampling_rate_hz": 500.0,
+    "duration_seconds": 20.0,
+    "highpass_hz": 0.0,
+    "lowpass_hz": 250.0,
+    "measurement_date": null,
+    "annotations_count": 0,
+    "annotation_descriptions": [],
+    "subject_info_present": false,
+    "bandpower": {
+      "delta": 8.774335225247327e-12,
+      "theta": 2.08832939371564e-12,
+      "alpha": 1.7408717002187442e-12,
+      "beta": 2.216867118439373e-12,
+      "gamma": 2.2999361138578894e-12
+    }
+  },
+  "common_channels": [
+    "Fpz",
+    "Cz",
+    "C3",
+    "Ch4",
+    "Ch5",
+    "Ch6",
+    "Ch7",
+    "Ch8"
+  ],
+  "common_channel_count": 8,
+  "channel_metrics": [
+    {
+      "easy_channel": "Fpz",
+      "edf_channel": "Fpz",
+      "corr": 1.0,
+      "easy_std_uv": 87.64815622359896,
+      "edf_std_uv": 87.64815622359896,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 786.1139999999975,
+      "edf_peak_to_peak_uv": 786.1139999999975
+    },
+    {
+      "easy_channel": "Cz",
+      "edf_channel": "Cz",
+      "corr": 0.9999999999999999,
+      "easy_std_uv": 121.6772848347325,
+      "edf_std_uv": 121.6772848347325,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 766.6590000000028,
+      "edf_peak_to_peak_uv": 766.6590000000028
+    },
+    {
+      "easy_channel": "C3",
+      "edf_channel": "C3",
+      "corr": 1.0,
+      "easy_std_uv": 83.76915945367728,
+      "edf_std_uv": 83.76915945367728,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 633.2400000000002,
+      "edf_peak_to_peak_uv": 633.2400000000002
+    },
+    {
+      "easy_channel": "Ch4",
+      "edf_channel": "Ch4",
+      "corr": 1.0,
+      "easy_std_uv": 1.6653345369377348e-10,
+      "edf_std_uv": 1.6653345369377348e-10,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 0.0,
+      "edf_peak_to_peak_uv": 0.0
+    },
+    {
+      "easy_channel": "Ch5",
+      "edf_channel": "Ch5",
+      "corr": 1.0,
+      "easy_std_uv": 1.6653345369377348e-10,
+      "edf_std_uv": 1.6653345369377348e-10,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 0.0,
+      "edf_peak_to_peak_uv": 0.0
+    },
+    {
+      "easy_channel": "Ch6",
+      "edf_channel": "Ch6",
+      "corr": 1.0,
+      "easy_std_uv": 1.6653345369377348e-10,
+      "edf_std_uv": 1.6653345369377348e-10,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 0.0,
+      "edf_peak_to_peak_uv": 0.0
+    },
+    {
+      "easy_channel": "Ch7",
+      "edf_channel": "Ch7",
+      "corr": 1.0,
+      "easy_std_uv": 1.6653345369377348e-10,
+      "edf_std_uv": 1.6653345369377348e-10,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 0.0,
+      "edf_peak_to_peak_uv": 0.0
+    },
+    {
+      "easy_channel": "Ch8",
+      "edf_channel": "Ch8",
+      "corr": 1.0,
+      "easy_std_uv": 1.6653345369377348e-10,
+      "edf_std_uv": 1.6653345369377348e-10,
+      "rmse_uv": 0.0,
+      "mean_abs_diff_uv": 0.0,
+      "easy_peak_to_peak_uv": 0.0,
+      "edf_peak_to_peak_uv": 0.0
+    }
+  ],
+  "interpretation": [
+    "El .easy conserva marcadores por muestra, timestamps Unix y, cuando existe, acelerometr\u00eda; eso es \u00fatil para alineaci\u00f3n temporal fina y control de artefactos por movimiento.",
+    "El .edf es el formato m\u00e1s portable para an\u00e1lisis y archivado, aunque en este archivo no aparecen anotaciones.",
+    "Las se\u00f1ales coinciden razonablemente bien; eso sugiere que .easy y .edf representan la misma adquisici\u00f3n con diferencias menores de formato o preprocesado."
+  ],
+  "comparison_sampling_rate_hz": 500.0,
+  "compared_duration_seconds": 20.0,
+  "aggregate_metrics": {
+    "mean_corr": 1.0,
+    "median_corr": 1.0,
+    "mean_rmse_uv": 0.0,
+    "mean_abs_diff_uv": 0.0
+  }
+}
