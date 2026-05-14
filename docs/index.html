@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sandhi Interface — EEG Research</title>
+  <meta name="description" content="An independent neurotechnology research initiative studying the Readiness Potential as a marker of pre-impulse states in impulse control disorders." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── TOKENS ──────────────────────────────────────────────────── */
+    :root {
+      --bg-primary:       #FAF8FF;
+      --bg-secondary:     #F0ECF8;
+      --bg-tertiary:      #E8E2F5;
+      --bg-warm:          #F5EFE0;
+
+      --accent-primary:   #7B6FC4;
+      --accent-secondary: #A89FD8;
+      --accent-muted:     #C9C2E8;
+      --coral:            #E8B4A0;
+
+      --text-primary:     #2C2836;
+      --text-secondary:   #5C5470;
+      --text-tertiary:    #9490A8;
+
+      --border:           rgba(123, 111, 196, 0.15);
+      --border-strong:    rgba(123, 111, 196, 0.35);
+
+      --radius-card:      12px;
+      --radius-pill:      20px;
+      --max-w:            860px;
+      --max-w-narrow:     640px;
+    }
+
+    /* ─── RESET ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      background: var(--bg-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── TYPOGRAPHY ──────────────────────────────────────────────── */
+    h1, h2, h3, h4 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    em { font-style: italic; }
+
+    p { margin-bottom: 1rem; }
+    p:last-child { margin-bottom: 0; }
+
+    a {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    /* ─── NAV ─────────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 58px;
+      background: var(--bg-primary);
+      border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      height: 30px;
+      width: auto;
+    }
+
+    .nav-logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    .nav-logo-text span {
+      font-style: italic;
+      color: var(--accent-primary);
+    }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+
+    @media (max-width: 580px) { .nav-links { display: none; } }
+
+    .nav-links a {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--text-tertiary);
+      letter-spacing: 0.02em;
+      transition: color 0.18s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+
+    /* ─── SECTIONS ────────────────────────────────────────────────── */
+    section {
+      padding: clamp(4rem, 9vw, 7rem) clamp(1.25rem, 4vw, 3rem);
+    }
+
+    .inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .inner-narrow {
+      max-width: var(--max-w-narrow);
+      margin: 0 auto;
+    }
+
+    .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .label-accent { color: var(--accent-primary); }
+
+    h2 {
+      font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+      margin-bottom: 1.25rem;
+    }
+
+    h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+
+    hr.rule {
+      border: none;
+      border-top: 0.5px solid var(--border);
+    }
+
+    /* ─── PILLS / TAGS ────────────────────────────────────────────── */
+    .pill {
+      display: inline-block;
+      background: var(--accent-muted);
+      color: var(--accent-primary);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .pill-outline {
+      background: transparent;
+      border: 0.5px solid var(--border-strong);
+      color: var(--text-tertiary);
+    }
+
+    .pill-warm {
+      background: rgba(232, 180, 160, 0.25);
+      color: #8c5a46;
+    }
+
+    /* ─── BUTTONS ─────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.18s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent-primary);
+      border: 0.5px solid var(--border-strong);
+    }
+
+    /* ─── HERO ────────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding-top: clamp(4rem, 10vw, 7rem);
+      padding-bottom: clamp(4rem, 10vw, 7rem);
+    }
+
+    .hero-logo {
+      width: clamp(100px, 18vw, 150px);
+      height: auto;
+      margin-bottom: 2rem;
+      opacity: 0.92;
+    }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-style: italic;
+      line-height: 1.15;
+      color: var(--text-primary);
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text-tertiary);
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.75;
+    }
+
+    .hero-wave {
+      display: block;
+      width: min(500px, 80vw);
+      margin: 2.5rem auto 0;
+      opacity: 0.4;
+    }
+
+    .hero-actions {
+      display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    }
+
+    /* ─── PROBLEM SECTION ─────────────────────────────────────────── */
+    .bg-warm { background: var(--bg-warm); }
+    .bg-secondary { background: var(--bg-secondary); }
+    .bg-dark {
+      background: var(--text-primary);
+    }
+
+    .stat-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .stat-block { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 28px;
+    }
+
+    .stat-number {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-style: italic;
+      color: var(--accent-primary);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .stat-cite {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-tertiary);
+      margin-top: 0.5rem;
+    }
+
+    /* ─── SCIENCE SECTION ─────────────────────────────────────────── */
+    .hypothesis-block {
+      border-left: 0.5px solid var(--accent-primary);
+      padding: 1.5rem 1.75rem;
+      background: var(--bg-primary);
+      border-radius: 0 var(--radius-card) var(--radius-card) 0;
+      margin: 2rem 0;
+    }
+
+    .hypothesis-block p {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.55;
+    }
+
+    .timeline {
+      margin-top: 2.5rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 480px) {
+      .timeline-item { grid-template-columns: 60px 1fr; gap: 1rem; }
+    }
+
+    .timeline-year {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--accent-secondary);
+      padding-top: 0.05rem;
+    }
+
+    .timeline-content h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-content p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ─── PROTOCOL ────────────────────────────────────────────────── */
+    .protocol-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .protocol-grid { grid-template-columns: 1fr; }
+    }
+
+    .proto-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 28px;
+    }
+
+    .proto-card h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .proto-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .proto-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Electrode head diagram */
+    .electrode-section {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 560px) {
+      .electrode-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .electrode-section svg { margin: 0 auto; }
+    }
+
+    /* Phases */
+    .phases {
+      display: flex; flex-direction: column; gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .phase-item {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .phase-num {
+      width: 2rem; height: 2rem;
+      border: 0.5px solid var(--border-strong);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+
+    .phase-body h3 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .phase-body p { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* Code inline */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--bg-tertiary);
+      color: var(--accent-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ─── TEAM ────────────────────────────────────────────────────── */
+    .pi-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 32px 36px;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 1.75rem;
+      align-items: start;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      .pi-card { grid-template-columns: 1fr; gap: 1rem; }
+    }
+
+    .pi-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-strong);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+
+    .pi-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      margin-bottom: 0.1rem;
+    }
+
+    .pi-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .pi-bio {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .pi-awards {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .advisors-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .advisors-grid { grid-template-columns: 1fr; }
+    }
+
+    .advisor-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px 22px;
+    }
+
+    .advisor-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 0.15rem;
+    }
+
+    .advisor-role {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+    }
+
+    /* ─── SUPPORT ─────────────────────────────────────────────────── */
+    .support-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 560px) {
+      .support-grid { grid-template-columns: 1fr; }
+    }
+
+    .support-card {
+      border: 0.5px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-card);
+      padding: 28px 32px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .support-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: #FAF8FF;
+      margin-bottom: 0.5rem;
+    }
+
+    .support-card p {
+      font-size: 0.88rem;
+      color: rgba(200, 192, 220, 0.9);
+      margin-bottom: 1.25rem;
+    }
+
+    .bg-dark .label { color: rgba(200,192,220,0.6); }
+    .bg-dark h2 { color: var(--bg-primary); }
+
+    .btn-ghost-light {
+      background: transparent;
+      color: rgba(200, 192, 220, 0.9);
+      border: 0.5px solid rgba(200, 192, 220, 0.3);
+      font-size: 0.82rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 400;
+      display: inline-block;
+      text-decoration: none;
+      transition: opacity 0.18s;
+    }
+
+    .btn-ghost-light:hover { opacity: 0.75; text-decoration: none; }
+
+    /* ─── REFERENCES ──────────────────────────────────────────────── */
+    .refs ol {
+      padding-left: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .refs li {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.8rem;
+      line-height: 1.65;
+    }
+
+    .refs cite { font-style: italic; }
+
+    /* ─── FOOTER ──────────────────────────────────────────────────── */
+    footer {
+      background: var(--bg-secondary);
+      border-top: 0.5px solid var(--border);
+      padding: 2rem clamp(1.25rem, 4vw, 3rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-brand {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--accent-primary);
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+
+    footer a { color: var(--accent-secondary); }
+
+    /* ─── ACCESSIBILITY ───────────────────────────────────────────── */
+    :focus-visible {
+      outline: 1.5px solid var(--accent-primary);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#top">
+      <img src="./sandhi-logo.png" alt="Sandhi Interface logo" />
+      <span class="nav-logo-text">Sandhi <span>Interface</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#science">Research</a></li>
+      <li><a href="#protocol">Protocol</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#support">Support</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="inner-narrow">
+      <img src="./sandhi-logo.png" alt="" class="hero-logo" aria-hidden="true" />
+      <span class="hero-eyebrow">Sandhi Interface · Independent EEG Research · Puebla, México</span>
+      <h1 class="hero-title">
+        ¿Qué ocurre en el cerebro en el segundo previo a un impulso?
+      </h1>
+      <p class="hero-sub">
+        Studying the Readiness Potential as a neural marker of pre-impulse states — where neuroscience meets clinical relevance.
+      </p>
+      <div class="hero-actions">
+        <a href="#science" class="btn btn-primary">Read the research</a>
+        <a href="https://github.com/binivazqua/eno_love" class="btn btn-ghost" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+
+      <!-- EEG wave decoration -->
+      <svg class="hero-wave" viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polyline
+          points="0,30 45,30 60,30 70,10 80,50 90,14 100,44 110,30 160,30 185,30 200,28 212,32 222,6 232,54 242,28 252,32 262,30 310,30 340,30 358,30 370,32 382,4 392,56 402,28 412,32 422,30 460,30 500,30"
+          stroke="#A89FD8" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+          fill="none"
+        />
+      </svg>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- PROBLEM -->
+  <section class="bg-warm" id="problem">
+    <div class="inner">
+      <span class="label">Why this matters</span>
+      <h2>The gap in clinical intervention</h2>
+      <p style="max-width:620px; font-weight:300;">
+        Impulse control disorders — eating disorders, anxiety, addictions, compulsive behavior, self-harm — share a common mechanism. The brain prepares an action before conscious awareness of intent. Clinical intervention almost always arrives too late.
+      </p>
+
+      <div class="stat-block">
+        <div class="stat-card">
+          <div class="stat-number">1 in 4</div>
+          <p class="stat-desc">People worldwide will experience an impulse-related disorder in their lifetime</p>
+          <p class="stat-cite">Kessler et al., NCS-R 2005</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1–2 s</div>
+          <p class="stat-desc">The neural window before conscious intent — the Readiness Potential window we study</p>
+          <p class="stat-cite">Kornhuber & Deecke, 1965</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">7–10 s</div>
+          <p class="stat-desc">Predictive decoding of decisions before conscious awareness — via fMRI</p>
+          <p class="stat-cite">Haynes et al., 2008</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCIENCE -->
+  <section id="science">
+    <div class="inner">
+      <span class="label label-accent">Scientific background</span>
+      <h2>The neuroscience of the pre-impulse window</h2>
+      <p style="max-width:620px;">
+        Over sixty years of research show that voluntary actions are preceded by distinct neural signatures — measurable before the person is consciously aware of their intention to act.
+      </p>
+
+      <div class="hypothesis-block">
+        <p>
+          Impulsive states manifest as detectable patterns of motor preparation in the brain — measurable via EEG — that differ significantly from controlled or inhibited responses. This "pre-impulse window" may eventually enable early intervention.
+        </p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">1965</div>
+          <div class="timeline-content">
+            <h3>The Bereitschaftspotential</h3>
+            <p>Kornhuber & Deecke describe a slow negative cortical potential beginning up to 2 seconds before self-initiated voluntary movement — originating in the supplementary motor cortex. The canonical neural signature of preparation for action.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1983</div>
+          <div class="timeline-content">
+            <h3>Libet and conscious intent</h3>
+            <p>Libet et al. demonstrate that the readiness potential precedes the felt "urge to move" by several hundred milliseconds — revealing that the brain initiates actions before conscious awareness of the intention. This finding opened the neuroscience of volition.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2008</div>
+          <div class="timeline-content">
+            <h3>Predictive decoding</h3>
+            <p>Haynes et al. demonstrate via fMRI that the outcome of a freely chosen decision can be decoded from brain activity 7–10 seconds before the subject is consciously aware of their choice — extending the pre-conscious window far beyond what EEG studies had shown.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">now</div>
+          <div class="timeline-content">
+            <h3>Sandhi Interface</h3>
+            <p>Can this pre-impulse window be characterized using low-cost, accessible EEG hardware — and does it look different in the seconds before an unwanted compulsive action? That is our question.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- PROTOCOL -->
+  <section class="bg-secondary" id="protocol">
+    <div class="inner">
+      <span class="label">Experimental protocol</span>
+      <h2>How we work</h2>
+      <p style="max-width:580px; font-weight:300;">
+        Designed to be reproducible, transparent, and low-cost. Every step is documented in the open research log.
+      </p>
+
+      <!-- Electrode diagram + hardware -->
+      <div class="electrode-section">
+        <!-- Top-view head SVG with 10-20 electrode positions -->
+        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Electrode placement diagram: Cz, FCz, Fz, C3, C4, F3, F4, Pz">
+          <!-- Head outline -->
+          <ellipse cx="100" cy="108" rx="82" ry="98" stroke="#C9C2E8" stroke-width="0.75" />
+          <!-- Nose -->
+          <path d="M90 12 Q100 2 110 12" stroke="#C9C2E8" stroke-width="0.75" fill="none" />
+          <!-- Left ear -->
+          <path d="M18 100 Q10 108 18 116" stroke="#C9C2E8" stroke-width="0.75" fill="none" />
+          <!-- Right ear -->
+          <path d="M182 100 Q190 108 182 116" stroke="#C9C2E8" stroke-width="0.75" fill="none" />
+          <!-- Reference lines -->
+          <line x1="100" y1="12" x2="100" y2="205" stroke="#E8E2F5" stroke-width="0.5" />
+          <line x1="18" y1="108" x2="182" y2="108" stroke="#E8E2F5" stroke-width="0.5" />
+
+          <!-- Electrodes (filled = active, outline = reference grid) -->
+          <!-- Fz: slightly forward of center top -->
+          <circle cx="100" cy="72" r="5" fill="#7B6FC4" />
+          <text x="108" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Fz</text>
+
+          <!-- FCz: between Fz and Cz -->
+          <circle cx="100" cy="90" r="5" fill="#7B6FC4" />
+          <text x="108" y="94" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">FCz</text>
+
+          <!-- Cz: center -->
+          <circle cx="100" cy="108" r="5.5" fill="#A89FD8" />
+          <text x="108" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Cz</text>
+
+          <!-- C3: left -->
+          <circle cx="64" cy="108" r="5" fill="#7B6FC4" />
+          <text x="36" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C3</text>
+
+          <!-- C4: right -->
+          <circle cx="136" cy="108" r="5" fill="#7B6FC4" />
+          <text x="142" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C4</text>
+
+          <!-- F3: left-forward -->
+          <circle cx="70" cy="84" r="5" fill="#7B6FC4" />
+          <text x="40" y="88" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">F3</text>
+
+          <!-- F4: right-forward -->
+          <circle cx="130" cy="84" r="5" fill="#7B6FC4" />
+          <text x="137" y="88" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">F4</text>
+
+          <!-- Pz: slightly back of center -->
+          <circle cx="100" cy="138" r="5" fill="#7B6FC4" />
+          <text x="108" y="142" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Pz</text>
+        </svg>
+
+        <div>
+          <span class="proto-label">Current hardware</span>
+          <h3 style="margin-bottom:0.75rem;">Neuroelectrics Enobio 8</h3>
+          <p style="font-size:0.88rem; margin-bottom:0.75rem;">
+            8-channel wireless EEG · 24-bit resolution · 500 Hz sampling rate. Electrode placement targets the primary motor cortex (M1), supplementary motor area, and prefrontal cortex — the regions most implicated in motor preparation and impulse control.
+          </p>
+          <p style="font-size:0.85rem; margin-bottom:1rem; color:var(--text-tertiary);">
+            Next acquisition target: <strong style="color:var(--accent-primary);">Unicorn Hybrid Black</strong> (g.tec) — active dry electrodes, higher channel density, purpose-built for RP research. We won €1,000 at g.tec BR4IN.IO Spring School 2026 toward this goal.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+            <span class="pill">Enobio 8</span>
+            <span class="pill">NIC2</span>
+            <span class="pill">MNE-Python</span>
+            <span class="pill">500 Hz</span>
+            <span class="pill">Wet gel</span>
+            <span class="pill">Dry gel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Three phases -->
+      <div style="margin-top:3rem;">
+        <span class="label">Experimental phases</span>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-num">I</div>
+            <div class="phase-body">
+              <h3>Spontaneous RP characterization</h3>
+              <p>Voluntary free-movement paradigm. Baseline acquisition and full pipeline validation. Confirming that the readiness potential is detectable with our hardware configuration before advancing to task conditions.</p>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-num">II</div>
+            <div class="phase-body">
+              <h3>Go / No-Go inhibitory control</h3>
+              <p>Comparison of pre-motor neural activity between executed and successfully inhibited responses. Mapping what "stopping an impulse" looks like at the cortical level.</p>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-num">III</div>
+            <div class="phase-body">
+              <h3>Impulsivity EEG markers</h3>
+              <p>Differentiation of neural patterns preceding controlled versus impulsive actions. The core clinical application phase — characterizing the pre-impulse window in ecologically valid conditions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis stack -->
+      <div style="margin-top:2.5rem;">
+        <span class="label">Signal analysis strategy</span>
+        <div class="protocol-grid">
+          <div class="proto-card">
+            <span class="proto-label">Step 1</span>
+            <h3>Temporal segmentation</h3>
+            <p>Pre-action windows extracted around event markers — isolating the 1–2 s window before movement onset for epoch-based analysis.</p>
+          </div>
+          <div class="proto-card">
+            <span class="proto-label">Step 2</span>
+            <h3>Spectral power analysis</h3>
+            <p>Band power across delta, theta, alpha, beta, and gamma ranges. Identifying frequency-domain signatures of preparation states.</p>
+          </div>
+          <div class="proto-card">
+            <span class="proto-label">Step 3</span>
+            <h3>Slow cortical potential extraction</h3>
+            <p>RP extraction via averaging across trials — isolating the slow negative deflection that precedes voluntary action from ongoing neural noise.</p>
+          </div>
+          <div class="proto-card">
+            <span class="proto-label">Step 4</span>
+            <h3>Cross-condition comparison</h3>
+            <p>Statistical comparison of pre-motor patterns across conditions — controlled vs. impulsive, executed vs. inhibited — to identify discriminative neural features.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team">
+    <div class="inner">
+      <span class="label label-accent">The people behind the research</span>
+      <h2>Team</h2>
+
+      <div class="pi-card">
+        <div class="pi-avatar">BV</div>
+        <div>
+          <div class="pi-name">Biniza Verónica Vázquez Moreno</div>
+          <div class="pi-role">Principal Investigator · Sandhi Interface</div>
+          <p class="pi-bio">
+            Robotics and Systems Engineering student at Tecnológico de Monterrey Campus Puebla. NASA and MIT-adjacent experience. Leading Sandhi Interface as an independent research initiative with the conviction that meaningful neuroscience doesn't require institutional scale — only rigor, curiosity, and an honest research log.
+          </p>
+          <div class="pi-awards">
+            <span class="pill">Premio Mujer Tec 2026</span>
+            <span class="pill">g.tec BR4IN.IO Spring School</span>
+            <span class="pill-outline pill">ITESM Puebla</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:2.5rem;">
+        <span class="label">Contributors</span>
+        <div class="advisors-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="advisor-card">
+            <div class="advisor-name">Linda Michelle Silva Ramos</div>
+            <p class="advisor-role">Research Interface Specialist<br/>Mechatronics Engineering · 8th semester<br/>Physical &amp; UI interface for RP measurement</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Gianluca de la Rosa Bandini</div>
+            <p class="advisor-role">Research Interface Specialist<br/>Mechatronics Engineering · 8th semester<br/>Physical &amp; UI interface for RP measurement</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Sofía Navarro Rebolledo</div>
+            <p class="advisor-role">Human Factors Research Assistant<br/>Future neuroscientist · High school senior<br/>Human factors &amp; participant experience</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem;">
+        <span class="label">Advisors</span>
+        <div class="advisors-grid">
+          <div class="advisor-card">
+            <div class="advisor-name">Dr. Ana Luisa Santaolalla</div>
+            <p class="advisor-role">Harvard Neuroscience · Hult MBA<br/>Scientific direction</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Yolanda Fajardo</div>
+            <p class="advisor-role">Clinical Psychologist<br/>Founder, Serena Mente Puebla<br/>Clinical framing</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Dr. Christoph Guger</div>
+            <p class="advisor-role">Founder & CEO, g.tec biomedical engineering<br/>BCI & hardware advisory</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- SUPPORT -->
+  <section class="bg-dark" id="support">
+    <div class="inner">
+      <span class="label">Get involved</span>
+      <h2>Support & collaborate</h2>
+      <p style="color:rgba(200,192,220,0.8); max-width:560px; font-weight:300;">
+        This research is self-funded and independently conducted. If this question matters to you — as a researcher, a clinician, someone with lived experience, or simply someone who believes this science is worth doing — there are real ways to help.
+      </p>
+
+      <div class="support-grid">
+        <div class="support-card">
+          <h3>Fund the next hardware</h3>
+          <p>We won €1,000 at g.tec BR4IN.IO Spring School 2026 — a real start. Our crowdfunding goal is the <strong style="color:#FAF8FF;">Unicorn Hybrid Black</strong>, a g.tec headset purpose-built for RP research with active dry electrodes and higher channel density. Every contribution gets us closer.</p>
+          <a href="#" class="btn btn-primary">Support on GoFundMe</a>
+        </div>
+        <div class="support-card">
+          <h3>Collaborate</h3>
+          <p>We're looking for researchers in neuroscience and clinical psychology, engineers in signal processing and robotics, and anyone interested in replication or co-authorship.</p>
+          <a href="https://github.com/binivazqua/eno_love/issues" class="btn-ghost-light" target="_blank" rel="noopener">Open an issue on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFERENCES -->
+  <section class="refs" id="references">
+    <div class="inner-narrow">
+      <span class="label">Literature</span>
+      <h2>References</h2>
+      <ol>
+        <li>
+          Kornhuber, H.H., &amp; Deecke, L. (1965). Hirnpotentialänderungen bei Willkürbewegungen und passiven Bewegungen des Menschen: Bereitschaftspotential und reafferente Potentiale. <cite>Pflügers Archiv, 284</cite>, 1–17.
+        </li>
+        <li>
+          Libet, B., Gleason, C.A., Wright, E.W., &amp; Pearl, D.K. (1983). Time of conscious intention to act in relation to onset of cerebral activity (readiness potential): the unconscious initiation of a freely voluntary act. <cite>Brain, 106</cite>(3), 623–642.
+        </li>
+        <li>
+          Haynes, J.D., Sakai, K., Rees, G., Gilbert, S., Frith, C., &amp; Passingham, R.E. (2008). Reading hidden intentions in the human brain. <cite>Current Biology, 17</cite>(4), 323–328.
+        </li>
+        <li>
+          Kessler, R.C., et al. (2005). Lifetime prevalence and age-of-onset distributions of DSM-IV disorders in the National Comorbidity Survey Replication. <cite>Archives of General Psychiatry, 62</cite>(6), 593–602.
+        </li>
+        <li>
+          Uhlhaas, P.J., &amp; Singer, W. (2006). Neural synchrony in brain disorders: relevance for cognitive dysfunctions and pathophysiology. <cite>Neuron, 52</cite>(1), 155–168.
+        </li>
+        <li>
+          Gramfort, A., et al. (2013). MEG and EEG data analysis with MNE-Python. <cite>Frontiers in Neuroscience, 7</cite>, 267.
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-brand">Sandhi Interface</span>
+    <p>
+      Independent EEG Research · Puebla, México ·
+      <a href="https://github.com/binivazqua/eno_love" target="_blank" rel="noopener">github.com/binivazqua/eno_love</a>
+    </p>
+  </footer>
+
+</body>
+</html>
