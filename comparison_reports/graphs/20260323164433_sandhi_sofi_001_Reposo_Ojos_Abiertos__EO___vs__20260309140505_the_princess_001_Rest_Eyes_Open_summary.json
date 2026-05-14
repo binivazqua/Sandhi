@@ -1,0 +1,114 @@
+{
+  "easy": "data/test_003_sofi/20260323164433_sandhi_sofi_001_Reposo_Ojos_Abiertos_(EO).easy",
+  "edf": "data/test_001_MI/20260309140505_the_princess_001_Rest Eyes Open.edf",
+  "info": "data/test_003_sofi/20260323164433_sandhi_sofi_001_Reposo Ojos Abiertos (EO).info",
+  "comparison_sampling_rate_hz": 500.0,
+  "compared_duration_seconds": 15.0,
+  "summary": {
+    "channels": [
+      "Cz",
+      "C3"
+    ],
+    "mean_pearson_raw": -0.009678440206745917,
+    "mean_pearson_demeaned": -0.009678440206745891,
+    "mean_spearman_raw": 0.02184839297319723,
+    "mean_rmse_raw_uv": 38315.70984875361,
+    "mean_rmse_demeaned_uv": 106.69558237479417,
+    "mean_variance_ratio_easy_over_edf": 29.236669560309323,
+    "mean_slow_power_easy_0_0p5_uv2": 78.42058290298014,
+    "mean_slow_power_edf_0_0p5_uv2": 41.25238115473689,
+    "mean_quant_step_easy_uv": 0.046999999998661224,
+    "mean_quant_step_edf_uv": 0.003200999999997123
+  },
+  "channels": [
+    {
+      "channel": "Cz",
+      "mean_easy_uv": 35051.95153293333,
+      "mean_edf_uv": -96.69118097049821,
+      "median_easy_uv": 35055.903000000006,
+      "median_edf_uv": -100.02631895170518,
+      "variance_easy_uv2": 14849.657600831597,
+      "variance_edf_uv2": 348.68927565700886,
+      "std_easy_uv": 121.85917118063621,
+      "std_edf_uv": 18.673223494003622,
+      "mad_easy_uv": 137.43277784881934,
+      "mad_edf_uv": 16.25034371417379,
+      "iqr_easy_uv": 185.78800000000774,
+      "iqr_edf_uv": 22.497603250171665,
+      "ptp_easy_uv": 704.9079999999958,
+      "ptp_edf_uv": 131.87090217441065,
+      "pearson_raw": 0.0015176622443498807,
+      "pearson_demeaned": 0.0015176622443498747,
+      "spearman_raw": 0.04333813769862006,
+      "rmse_raw_uv": 35148.858816036256,
+      "rmse_demeaned_uv": 123.25355972496223,
+      "mean_abs_diff_raw_uv": 35148.642713903835,
+      "mean_abs_diff_demeaned_uv": 103.12353442414313,
+      "variance_ratio_easy_over_edf": 42.587078632835805,
+      "drift_easy_uv_per_s": -24.282213003950464,
+      "drift_edf_uv_per_s": 0.13155642435673862,
+      "slow_power_easy_0_0p5_uv2": 103.54793800127409,
+      "slow_power_edf_0_0p5_uv2": 35.63789018054539,
+      "delta_power_easy_0p5_4_uv2": 53.068615145617464,
+      "delta_power_edf_0p5_4_uv2": 144.72676590238962,
+      "quant_step_easy_uv": 0.046999999998661224,
+      "quant_step_edf_uv": 0.0031139999999965084
+    },
+    {
+      "channel": "C3",
+      "mean_easy_uv": 41437.31329973333,
+      "mean_edf_uv": -45.149651459730926,
+      "median_easy_uv": 41440.634,
+      "median_edf_uv": -47.708502601663234,
+      "variance_easy_uv2": 7569.052531111768,
+      "variance_edf_uv2": 476.45275217113965,
+      "std_easy_uv": 87.00030190241738,
+      "std_edf_uv": 21.827797694021715,
+      "mad_easy_uv": 94.23864481487442,
+      "mad_edf_uv": 20.38943900386556,
+      "iqr_easy_uv": 128.51900000000023,
+      "iqr_edf_uv": 27.799290341039132,
+      "ptp_easy_uv": 584.4120000000039,
+      "ptp_edf_uv": 168.21653984893567,
+      "pearson_raw": -0.020874542657841715,
+      "pearson_demeaned": -0.020874542657841656,
+      "spearman_raw": 0.00035864824777439756,
+      "rmse_raw_uv": 41482.56088147096,
+      "rmse_demeaned_uv": 90.13760502462611,
+      "mean_abs_diff_raw_uv": 41482.46295119306,
+      "mean_abs_diff_demeaned_uv": 73.81485587891696,
+      "variance_ratio_easy_over_edf": 15.886260487782845,
+      "drift_easy_uv_per_s": -15.925945412102156,
+      "drift_edf_uv_per_s": 0.23306540295986286,
+      "slow_power_easy_0_0p5_uv2": 53.293227804686204,
+      "slow_power_edf_0_0p5_uv2": 46.866872128928385,
+      "delta_power_easy_0p5_4_uv2": 43.98909139527117,
+      "delta_power_edf_0p5_4_uv2": 184.1806840922178,
+      "quant_step_easy_uv": 0.046999999998661224,
+      "quant_step_edf_uv": 0.003287999999997737
+    }
+  ],
+  "sources": [
+    {
+      "title": "NIC2 User Manual",
+      "url": "https://www.neuroelectrics.com/api/downloads/NE_P3_UM004_EN_NIC2.1.0_1.pdf",
+      "note": "NIC2 states `.nedf` is 24-bit, `.edf` is 16-bit, and the DC component is filtered in `.edf` exports."
+    },
+    {
+      "title": "Neuroelectrics EEGLAB Plugin",
+      "url": "https://www.neuroelectrics.com/eeglab-plugin",
+      "note": "Neuroelectrics exposes `.easy` and `.nedf` as native analysis-ready inputs for their tooling."
+    },
+    {
+      "title": "Enobio 8 Product Page",
+      "url": "https://www.neuroelectrics.com/products/research/enobio/enobio8",
+      "note": "Neuroelectrics advertises 24-bit signal resolution, 0.05 uV resolution, and sample-precision data storage."
+    }
+  ],
+  "plots": {
+    "raw_overlay": "comparison_reports/graphs/20260323164433_sandhi_sofi_001_Reposo_Ojos_Abiertos__EO___vs__20260309140505_the_princess_001_Rest_Eyes_Open_raw_overlay.png",
+    "demeaned_overlay": "comparison_reports/graphs/20260323164433_sandhi_sofi_001_Reposo_Ojos_Abiertos__EO___vs__20260309140505_the_princess_001_Rest_Eyes_Open_demeaned_overlay.png",
+    "histograms": "comparison_reports/graphs/20260323164433_sandhi_sofi_001_Reposo_Ojos_Abiertos__EO___vs__20260309140505_the_princess_001_Rest_Eyes_Open_histograms.png",
+    "stats_heatmap": "comparison_reports/graphs/20260323164433_sandhi_sofi_001_Reposo_Ojos_Abiertos__EO___vs__20260309140505_the_princess_001_Rest_Eyes_Open_stats_heatmap.png"
+  }
+}
