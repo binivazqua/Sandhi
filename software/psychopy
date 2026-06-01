@@ -1,0 +1,55 @@
+PSYCHOPY INTEGRATION NOTES
+==========================
+
+PsychoPy version used: 2026.1.3
+Main experiment file  : Sandhi_Demo/Sandi_Interface_All_Trials_lastrun.py
+
+DO NOT run the _lastrun.py file directly for EEG sessions.
+Use the launcher instead:
+    python Sandhi_Demo/run_experiment.py
+
+What the launcher adds that the raw _lastrun.py does not have
+-------------------------------------------------------------
+  1. EEG stream verification before the PsychoPy window opens.
+  2. Operator prompt to confirm LabRecorder is recording.
+  3. Optional muselsl auto-start (--start-muselsl flag).
+
+Current marker implementation in _lastrun.py (known issue)
+-----------------------------------------------------------
+  The existing EEG_Start_Code block uses:
+    channel_format='string'
+    push_sample(['experiment_start'])  <- string labels
+
+  The architecture calls for integer codes (int32) so that LabRecorder
+  saves numeric event markers directly usable by EEGLab / MNE.
+
+  To fix this, in PsychoPy Builder:
+    1. Open Sandi_Interface_All_Trials.psyexp.
+    2. In the "EEG_Start_Code" code component (Before Experiment tab),
+       replace the existing StreamInfo block with:
+         from eeg_lsl_bridge import SandhiMarkerOutlet, MARKERS
+         marker_outlet = SandhiMarkerOutlet()
+    3. Replace every  marker_outlet.push_sample(['<string>'])  call with
+       the corresponding integer code, e.g.:
+         marker_outlet.push(MARKERS.EXPERIMENT_START)
+         marker_outlet.push(MARKERS.EMOCIONES_TRIAL_START)
+         ... etc.
+    4. Re-export to _lastrun.py from Builder.
+
+  The full marker code table is defined in software/eeg_lsl_bridge.py
+  under the MARKERS class.
+
+piloting flag
+-------------
+  The pilot data files confirm the experiment was run with piloting=True
+  (auto-set by PsychoPy Builder when running from the GUI without the
+  --session flag). For formal data collection runs, launch via:
+    python Sandhi_Demo/run_experiment.py
+  This invokes the script as __main__ and sets piloting=False by default.
+
+Randomization seed
+------------------
+  TrialHandler2 is called with seed=None in all three task loops. This means
+  trial order is not reproducible across runs. For counterbalancing or
+  reproducibility, pass an explicit seed tied to the participant ID, e.g.:
+    seed=int(expInfo['participant'])

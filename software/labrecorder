@@ -1,0 +1,33 @@
+LABRECORDER SETUP
+=================
+
+Download: https://github.com/labstreaminglayer/App-LabRecorder/releases
+
+Workflow
+--------
+  1. Start BlueMuse or muselsl so the Muse EEG stream is visible on LSL.
+  2. Open LabRecorder.
+  3. In the "Record from streams" list you should see at minimum:
+       type=EEG   (Muse 2, 4 ch, ~256 Hz)
+     After PsychoPy starts you will also see:
+       type=Markers  (SandhiMarkers, integer event codes)
+  4. Set the output directory and filename before pressing Start.
+     Recommended naming: <participant_id>_<date>_sandhi.xdf
+  5. Press "Start" — confirm the file size counter begins incrementing.
+  6. Launch the experiment via:  python run_experiment.py
+  7. After the experiment ends, press "Stop" in LabRecorder and verify
+     the .xdf file exists and is non-zero in size.
+
+Marker stream timing note
+-------------------------
+  The 'SandhiMarkers' LSL stream is created by PsychoPy when the experiment
+  script starts. LabRecorder will auto-detect it and begin recording markers
+  from that point. No manual action is needed — LabRecorder monitors for
+  new streams during a session. However, starting LabRecorder BEFORE PsychoPy
+  ensures the EEG baseline (pre-experiment) is captured as well.
+
+XDF analysis
+------------
+  See software/matlab.md for EEGLab + xdf-EEGLAB plugin instructions.
+  For Python-based analysis, use MNE-Python with the pyxdf loader:
+    pip install mne pyxdf
