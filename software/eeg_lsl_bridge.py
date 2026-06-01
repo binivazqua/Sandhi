@@ -22,7 +22,7 @@ Usage in PsychoPy script  (replace the existing "EEG_Start_Code" block):
     from eeg_lsl_bridge import verify_eeg_stream, SandhiMarkerOutlet, MARKERS
     verify_eeg_stream()                     # abort if Muse not streaming
     marker_outlet = SandhiMarkerOutlet()    # creates the LSL marker stream
-    marker_outlet.push(MARKERS.EXPERIMENT_START)
+    marker_outlet.push(MARKERS.BLOCK_START)
 
 On Windows:    start BlueMuse and press "Start LSL" before running PsychoPy.
 On macOS/Linux: call start_muse_stream() below — it launches muselsl in a
@@ -41,36 +41,38 @@ from pylsl import StreamInfo, StreamOutlet, resolve_stream
 
 
 # ---------------------------------------------------------------------------
-# Integer marker codes
-# Using int32 codes (not strings) is best practice:
-#   - smaller payload, lower LSL latency
-#   - directly usable as event codes in EEGLab / MNE without string parsing
-#   - unambiguous across analysis scripts
+# String marker codes — Sandhi Alpha 01 Protocol v1
+#
+# Source of truth: Sandhi_Alpha_01_Protocol.pdf §3.3 (Fase 01), §4.4 (Fase 02),
+# §5.3 (Fase 03). The protocol mandates: "el string literal que se emite por
+# LSL debe coincidir carácter por carácter con el código."
+#
+# Why strings (not int32):
+#   - Protocol v1 explicitly requires string type for legibility in analysis.
+#   - MNE/pyxdf Annotations display the event name directly when loading .xdf,
+#     requiring no lookup table to interpret epochs.
+#   - LabRecorder records whatever type is declared — both work, but string
+#     is the agreed standard for this lab version.
 # ---------------------------------------------------------------------------
 class MARKERS:
-    # Experiment-level
-    EXPERIMENT_START = 10
-    EXPERIMENT_END   = 99
+    # --- Fase 01: Pilot Trial Nivel 0 (plumbing validation) ---
+    BLOCK_START      = 'BLOCK_START'     # start of recording session
+    BLOCK_END        = 'BLOCK_END'       # end of recording session
+    STIM_GO          = 'STIM_GO'         # Go stimulus: color matches button
+    RESP_BUTTON      = 'RESP_BUTTON'     # participant pressed a button
+    RESP_LEVER_L     = 'RESP_LEVER_L'    # lever movement: left shoulder rotation (17.5°)
+    RESP_LEVER_R     = 'RESP_LEVER_R'    # lever movement: right shoulder rotation (17.5°)
 
-    # Emotions block  (Task 1 — slider, 3 s exposure)
-    EMOCIONES_BLOCK_START = 20
-    EMOCIONES_TRIAL_START = 21
-    EMOCIONES_TRIAL_END   = 22
-    EMOCIONES_BLOCK_END   = 23
+    # --- Fase 02: MVI — Go/No-Go action selection ---
+    STIM_NOGO            = 'STIM_NOGO'            # No-Go stimulus: color does NOT match button
+    FTI_BALLISTIC_ERROR  = 'FTI_BALLISTIC_ERROR'  # No-Go response < 200 ms (ballistic impulse)
+    CONTROLLED_RESPONSE  = 'CONTROLLED_RESPONSE'  # response > 200 ms (successful controlled action)
+    CORRECT_INHIBITION   = 'CORRECT_INHIBITION'   # No-Go trial: no response at all (clean inhibition)
 
-    # Buttons block   (Task 2 — ROJO/AMARILLO/AZUL/VERDE)
-    BOTONES_BLOCK_START   = 30
-    BOTONES_TRIAL_START   = 31
-    BOTONES_CORRECT       = 32   # correct response registered
-    BOTONES_INCORRECT     = 33   # incorrect or no response
-    BOTONES_BLOCK_END     = 34
-
-    # Arrows/joystick block  (Task 3 — ARRIBA/ABAJO/IZQ/DER)
-    PALANCAS_BLOCK_START  = 40
-    PALANCAS_TRIAL_START  = 41
-    PALANCAS_CORRECT      = 42
-    PALANCAS_INCORRECT    = 43
-    PALANCAS_BLOCK_END    = 44
+    # --- Fase 03: Probes + metacognition ---
+    PROBE_AUDIO      = 'PROBE_AUDIO'      # brief auditory probe tone (500 Hz, 0.1 s)
+    PROBE_REPORT_YES = 'PROBE_REPORT_YES' # participant reports: was preparing to move
+    PROBE_REPORT_NO  = 'PROBE_REPORT_NO'  # participant reports: was NOT preparing to move
 
 
 # ---------------------------------------------------------------------------
@@ -78,6 +80,7 @@ class MARKERS:
 # Call this once before the PsychoPy experiment window opens.
 # If the Muse is not streaming, the experiment should not start — there is
 # no point collecting behavioral data without the EEG it is meant to annotate.
+# Protocol §3.2 lists verify_stream() as a Fase 01 success criterion.
 # ---------------------------------------------------------------------------
 def verify_eeg_stream(timeout: float = 10.0) -> bool:
     """
@@ -111,6 +114,8 @@ def verify_eeg_stream(timeout: float = 10.0) -> bool:
         f"[Sandhi] EEG stream found: '{info.name()}' "
         f"({info.channel_count()} ch @ {info.nominal_srate()} Hz)"
     )
+    # GAP-02 reminder: verify channel order empirically (TP9, AF7, AF8, TP10 assumed).
+    print("[Sandhi] NOTE (GAP-02): confirm channel order in stream matches TP9/AF7/AF8/TP10.")
     return True
 
 
@@ -166,16 +171,14 @@ def start_muse_stream(address: str = None) -> threading.Thread:
 
 # ---------------------------------------------------------------------------
 # Marker outlet
-# Wraps StreamOutlet with integer codes (int32) so LabRecorder saves them
-# as numeric event markers in the XDF file — directly readable by EEGLab
-# and MNE without any string-to-int conversion step.
-#
-# The existing PsychoPy code uses channel_format='string'. That works, but
-# switching to int32 is strongly preferred for downstream analysis toolchains.
+# Declared as channel_format='string' per Protocol v1 §3.3 / Glosario:
+#   "Se declara como tipo string para legibilidad en el análisis."
+# String markers appear as named annotations in MNE/pyxdf without any
+# lookup table, making epoch extraction self-documenting.
 # ---------------------------------------------------------------------------
 class SandhiMarkerOutlet:
     """
-    LSL marker outlet tailored to the Sandhi experiment.
+    LSL marker outlet tailored to the Sandhi Alpha 01 experiment.
 
     Replaces the inline StreamInfo/StreamOutlet block in EEG_Start_Code
     inside Sandi_Interface_All_Trials_lastrun.py.
@@ -183,9 +186,12 @@ class SandhiMarkerOutlet:
     Example
     -------
     marker_outlet = SandhiMarkerOutlet()
-    marker_outlet.push(MARKERS.EXPERIMENT_START)
+    marker_outlet.push(MARKERS.BLOCK_START)
     ...
-    marker_outlet.push(MARKERS.EMOCIONES_TRIAL_START)
+    marker_outlet.push(MARKERS.STIM_GO)
+    marker_outlet.push(MARKERS.RESP_BUTTON)
+    ...
+    marker_outlet.push(MARKERS.BLOCK_END)
     """
 
     def __init__(self):
@@ -193,37 +199,30 @@ class SandhiMarkerOutlet:
             name='SandhiMarkers',
             type='Markers',
             channel_count=1,
-            nominal_srate=0,          # irregular rate — event-driven
-            channel_format='int32',   # int32 preferred over 'string'
+            nominal_srate=0,        # irregular rate — event-driven
+            channel_format='string',
             source_id='sandhi_psychopy_markers'
         )
         self._outlet = StreamOutlet(info)
         # Brief pause so LabRecorder detects the new stream before any
         # markers are pushed. Without this, the first marker may be missed.
         time.sleep(0.5)
-        print("[Sandhi] Marker outlet created: 'SandhiMarkers' (int32)")
+        print("[Sandhi] Marker outlet created: 'SandhiMarkers' (string)")
 
-    def push(self, code: int, verbose: bool = True):
-        """Push a single integer marker code onto the LSL stream."""
-        self._outlet.push_sample([int(code)])
+    def push(self, marker: str, verbose: bool = True):
+        """Push a single string marker onto the LSL stream."""
+        self._outlet.push_sample([str(marker)])
         if verbose:
-            label = _code_to_label(code)
-            print(f"[Sandhi] Marker sent: {code}  ({label})")
-
-
-def _code_to_label(code: int) -> str:
-    """Reverse-lookup a MARKERS constant name from its integer value."""
-    for name, val in vars(MARKERS).items():
-        if not name.startswith('_') and val == code:
-            return name
-    return 'UNKNOWN'
+            print(f"[Sandhi] Marker sent: '{marker}'")
 
 
 # ---------------------------------------------------------------------------
 # Quick self-test  (run as  python eeg_lsl_bridge.py  to verify setup)
+# Sends the minimal Fase 01 marker sequence: BLOCK_START → STIM_GO →
+# RESP_BUTTON → BLOCK_END, matching §3.3 of the protocol.
 # ---------------------------------------------------------------------------
 if __name__ == '__main__':
-    print("=== Sandhi LSL Bridge self-test ===")
+    print("=== Sandhi LSL Bridge self-test (Protocol v1 — Fase 01 markers) ===")
     print("Step 1 — verifying EEG stream (start BlueMuse/muselsl first) ...")
     try:
         verify_eeg_stream(timeout=10)
@@ -234,12 +233,15 @@ if __name__ == '__main__':
     print("\nStep 2 — creating marker outlet ...")
     outlet = SandhiMarkerOutlet()
 
-    print("\nStep 3 — sending test markers ...")
-    for code in [MARKERS.EXPERIMENT_START,
-                 MARKERS.EMOCIONES_TRIAL_START,
-                 MARKERS.EMOCIONES_TRIAL_END,
-                 MARKERS.EXPERIMENT_END]:
-        outlet.push(code)
+    print("\nStep 3 — sending Fase 01 test sequence ...")
+    for marker in [
+        MARKERS.BLOCK_START,
+        MARKERS.STIM_GO,
+        MARKERS.RESP_BUTTON,
+        MARKERS.BLOCK_END,
+    ]:
+        outlet.push(marker)
         time.sleep(0.5)
 
-    print("\n[Sandhi] Self-test complete. Check LabRecorder for the 4 markers.")
+    print("\n[Sandhi] Self-test complete. Check LabRecorder for 4 string markers.")
+    print("         Expected in .xdf: BLOCK_START, STIM_GO, RESP_BUTTON, BLOCK_END")
