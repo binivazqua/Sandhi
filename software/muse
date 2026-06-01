@@ -1,0 +1,34 @@
+MUSE 2 SETUP
+============
+
+Windows
+-------
+Use BlueMuse: https://github.com/kowalej/BlueMuse
+  1. Install from Microsoft Store or the GitHub releases page.
+  2. Pair the Muse 2 via Windows Bluetooth settings.
+  3. Open BlueMuse, find the device, click "Start LSL".
+  4. Confirm the EEG stream appears in LabRecorder before starting the experiment.
+
+macOS / Linux
+-------------
+Use muselsl: https://github.com/alexandrebarachant/muse-lsl
+  pip install muselsl
+
+  Option A — manual (recommended for first-time setup):
+    muselsl stream          # in a dedicated terminal, leave it running
+
+  Option B — automatic (via run_experiment.py):
+    python run_experiment.py --start-muselsl
+
+Stream details (Muse 2)
+-----------------------
+  Channels    : 4 EEG (TP9, AF7, AF8, TP10) + accelerometer + gyroscope
+  Sample rate : ~256 Hz
+  LSL type    : 'EEG'
+  BlueMuse also provides a 'Telemetry' stream (battery, Horse Shoe quality).
+
+Signal quality check
+--------------------
+  Watch the Horse Shoe indicator in BlueMuse (Windows) or the terminal output
+  from muselsl before placing the headset on the participant. All four nodes
+  should show green/good contact before starting LabRecorder.
