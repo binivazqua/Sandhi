@@ -3,13 +3,12 @@
 """
 eeg_lsl_bridge.py  —  Sandhi Interface EEG/LSL integration layer
 =================================================================
-This module is the missing link between the PsychoPy UX/UI logic
-(Sandi_Interface_All_Trials_lastrun.py) and the EEG acquisition
-pipeline described in the Sandhi Alpha 01 architecture document.
+Link between the PsychoPy UX/UI logic and the EEG acquisition
+pipeline for Sandhi Alpha 01 protocol.
 
 Full data pipeline:
     Muse 2
-      └─► BlueMuse (Windows) / muselsl (macOS/Linux)
+      └─► BlueMuse (Windows) / muselsl (macOS/Linux) (As PI, i'll craft the macOS/Linux instructions, but the Windows workflow is handled by BlueMuse's GUI — just start the stream there before running PsychoPy.)
             └─► LSL EEG stream  ──┐
                                    ├─► LabRecorder ──► .xdf file
             LSL Marker stream  ──┘
@@ -30,7 +29,7 @@ On macOS/Linux: call start_muse_stream() below — it launches muselsl in a
 
 NOTE: LabRecorder must be open and recording BEFORE the experiment starts.
       LabRecorder listens for all active LSL streams and writes them to .xdf.
-      There is no need to interact with LabRecorder from Python for basic use.
+      There is no need to interact with LabRecorder from Python for basic use and practicity.
 """
 
 import threading
@@ -42,20 +41,17 @@ from pylsl import StreamInfo, StreamOutlet, resolve_stream
 
 # ---------------------------------------------------------------------------
 # String marker codes — Sandhi Alpha 01 Protocol v1
-#
-# Source of truth: Sandhi_Alpha_01_Protocol.pdf §3.3 (Fase 01), §4.4 (Fase 02),
-# §5.3 (Fase 03). The protocol mandates: "el string literal que se emite por
-# LSL debe coincidir carácter por carácter con el código."
-#
+
+
 # Why strings (not int32):
 #   - Protocol v1 explicitly requires string type for legibility in analysis.
 #   - MNE/pyxdf Annotations display the event name directly when loading .xdf,
 #     requiring no lookup table to interpret epochs.
-#   - LabRecorder records whatever type is declared — both work, but string
-#     is the agreed standard for this lab version.
+#   - LabRecorder records whatever type is declared ( both work, but string
+#     is the agreed standard for this lab version).
 # ---------------------------------------------------------------------------
 class MARKERS:
-    # --- Fase 01: Pilot Trial Nivel 0 (plumbing validation) ---
+    # --- Fase 01: Pilot Trial Nivel 0, just PIPELINE VALIDATION ---
     BLOCK_START      = 'BLOCK_START'     # start of recording session
     BLOCK_END        = 'BLOCK_END'       # end of recording session
     STIM_GO          = 'STIM_GO'         # Go stimulus: color matches button
@@ -78,9 +74,7 @@ class MARKERS:
 # ---------------------------------------------------------------------------
 # EEG stream verification
 # Call this once before the PsychoPy experiment window opens.
-# If the Muse is not streaming, the experiment should not start — there is
-# no point collecting behavioral data without the EEG it is meant to annotate.
-# Protocol §3.2 lists verify_stream() as a Fase 01 success criterion.
+# If the Muse is not streaming, the experiment should not start.
 # ---------------------------------------------------------------------------
 def verify_eeg_stream(timeout: float = 10.0) -> bool:
     """
@@ -100,7 +94,13 @@ def verify_eeg_stream(timeout: float = 10.0) -> bool:
     RuntimeError if no EEG stream appears within `timeout`.
     """
     print(f"[Sandhi] Searching for Muse EEG stream (timeout={timeout}s)...")
+    # resolve_stream() returns a list of StreamInfo objects matching the query.
+    # by default, Muse 2 is an EEG type stream.
+    #  It would accept an OpenBCI, a g.tec, a test stream from a laptop, pretty much anything.
+    #   If another EEG device happened to be on the same local network, it would pass silently...abs
+
     streams = resolve_stream('type', 'EEG', timeout=timeout)
+
     if not streams:
         raise RuntimeError(
             "\n[Sandhi] ERROR: No EEG stream found.\n"
@@ -109,12 +109,21 @@ def verify_eeg_stream(timeout: float = 10.0) -> bool:
             "    or call  start_muse_stream()  before verify_eeg_stream().\n"
             "  The experiment will NOT start without a confirmed EEG stream."
         )
+
+    # filter to Muse-specific streams if the latter becomes an issue.
+    # muse_streams = [
+    #     s for s in streams
+    #     if s.channel_count() in (4, 5)
+    #     and abs(s.nominal_srate() - 256.0) < 1.0
+    #     and ('muse' in s.name().lower() or 'interaxon' in s.manufacturer().lower())
+    # ]
+
     info = streams[0]
     print(
         f"[Sandhi] EEG stream found: '{info.name()}' "
         f"({info.channel_count()} ch @ {info.nominal_srate()} Hz)"
     )
-    # GAP-02 reminder: verify channel order empirically (TP9, AF7, AF8, TP10 assumed).
+
     print("[Sandhi] NOTE (GAP-02): confirm channel order in stream matches TP9/AF7/AF8/TP10.")
     return True
 
@@ -122,9 +131,9 @@ def verify_eeg_stream(timeout: float = 10.0) -> bool:
 # ---------------------------------------------------------------------------
 # muselsl thread launcher  (macOS / Linux only)
 # On Windows, BlueMuse handles this; calling this function there will fail
-# gracefully with an ImportError message.
+# w an ImportError message.
 #
-# muselsl.stream() is blocking, so it MUST run in a daemon thread — otherwise
+# muselsl.stream() is blocking, so it MUST run in a daemon (independent) thread — otherwise
 # it would freeze the PsychoPy main loop. daemon=True ensures the thread is
 # killed automatically when the main process exits.
 # ---------------------------------------------------------------------------
@@ -136,7 +145,7 @@ def start_muse_stream(address: str = None) -> threading.Thread:
     ----------
     address : str, optional
         Bluetooth MAC address of the Muse 2. If None, the first available
-        device is used (requires Bluetooth scan, adds ~5 s startup time).
+        device is used (requires Bluetooth scan, adds a 5s ish startup time).
 
     Returns
     -------
@@ -171,10 +180,14 @@ def start_muse_stream(address: str = None) -> threading.Thread:
 
 # ---------------------------------------------------------------------------
 # Marker outlet
-# Declared as channel_format='string' per Protocol v1 §3.3 / Glosario:
-#   "Se declara como tipo string para legibilidad en el análisis."
-# String markers appear as named annotations in MNE/pyxdf without any
-# lookup table, making epoch extraction self-documenting.
+# The side of data production. From Psychopy to LabRecorder via LSL.
+# Marker Life-Cycle:
+# 1. win.callOnFlip(marker_outlet.push, 'STIM_GO')    
+# 2. GPU flip ocurre → PsychoPy calls push()
+# 3. push_sample(['STIM_GO']) → LSL internal timestamp assigned (e.g. t=12.345s) ← same clock as EEG stream
+# 4. LabRecorder has an  StreamInlet → receives marker with timestamp t=12.345s and writes to .xdf
+# 5. Inside .xdf: event 'STIM_GO' in t=12.345s
+#    Inside EEG:  marker in t=12.345s  ← alignment.
 # ---------------------------------------------------------------------------
 class SandhiMarkerOutlet:
     """
@@ -183,10 +196,10 @@ class SandhiMarkerOutlet:
     Replaces the inline StreamInfo/StreamOutlet block in EEG_Start_Code
     inside Sandi_Interface_All_Trials_lastrun.py.
 
-    Example
-    -------
+    Example implementation in PsychoPy script:
+    -------------------------------------------
     marker_outlet = SandhiMarkerOutlet()
-    marker_outlet.push(MARKERS.BLOCK_START)
+    marker_outlet.push(MARKERS.BLOCK_START) # use constants.
     ...
     marker_outlet.push(MARKERS.STIM_GO)
     marker_outlet.push(MARKERS.RESP_BUTTON)
@@ -195,17 +208,20 @@ class SandhiMarkerOutlet:
     """
 
     def __init__(self):
+        # Define the marker stream info and create the outlet.
         info = StreamInfo(
             name='SandhiMarkers',
             type='Markers',
             channel_count=1,
-            nominal_srate=0,        # irregular rate — event-driven
+            nominal_srate=0,        # irregular rate —> event-driven
             channel_format='string',
             source_id='sandhi_psychopy_markers'
         )
         self._outlet = StreamOutlet(info)
         # Brief pause so LabRecorder detects the new stream before any
         # markers are pushed. Without this, the first marker may be missed.
+
+        # LabRecorder receives as a StreamInlet.
         time.sleep(0.5)
         print("[Sandhi] Marker outlet created: 'SandhiMarkers' (string)")
 
@@ -219,21 +235,21 @@ class SandhiMarkerOutlet:
 # ---------------------------------------------------------------------------
 # Quick self-test  (run as  python eeg_lsl_bridge.py  to verify setup)
 # Sends the minimal Fase 01 marker sequence: BLOCK_START → STIM_GO →
-# RESP_BUTTON → BLOCK_END, matching §3.3 of the protocol.
+# RESP_BUTTON.
 # ---------------------------------------------------------------------------
 if __name__ == '__main__':
     print("=== Sandhi LSL Bridge self-test (Protocol v1 — Fase 01 markers) ===")
-    print("Step 1 — verifying EEG stream (start BlueMuse/muselsl first) ...")
+    print("Verifying EEG stream (start BlueMuse or muselsl first) ...")
     try:
         verify_eeg_stream(timeout=10)
     except RuntimeError as e:
         print(e)
         sys.exit(1)
 
-    print("\nStep 2 — creating marker outlet ...")
+    print("\nCreating marker outlet ...")
     outlet = SandhiMarkerOutlet()
 
-    print("\nStep 3 — sending Fase 01 test sequence ...")
+    print("\nSending Fase 01 test sequence ...")
     for marker in [
         MARKERS.BLOCK_START,
         MARKERS.STIM_GO,
