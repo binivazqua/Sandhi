@@ -3,5 +3,11 @@ node_modules/
 .DS_Store
 data/
 
+# Virtual environments
+eno_venv/
+venv/
+.venv/
+env/
+
 # Claude Code internals
 .claude/
