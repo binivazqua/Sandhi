@@ -231,18 +231,18 @@ def verify_eeg_stream(timeout: float = 10.0) -> bool:
 def check_signal_quality(inlet: StreamInlet = None,
                           n_samples: int = 512) -> dict:
     """
-    Collect a short EEG buffer and estimate per-channel contact quality.
+    Collect a short EEG sample and estimate contact quality (per channel).
 
-    Parameters
+    Params:
     ----------
-    inlet : StreamInlet, optional
+    inlet : StreamInlet, opt
         An already-open EEG inlet. If None, verify_eeg_stream() is called
-        internally (adds ~10 s timeout on first use).
+        internally (adds a 10 s timeout on first use).
     n_samples : int
         Number of samples to collect before evaluating (default 512 = 2 s).
         Minimum 50. More samples = more stable estimate.
 
-    Returns
+    Returns:
     -------
     dict with keys 'TP9', 'AF7', 'AF8', 'TP10', 'forehead_contact'.
     Each channel value: {'score': int, 'label': str, 'amplitude': float}
@@ -290,7 +290,7 @@ def check_signal_quality(inlet: StreamInlet = None,
 
 
 def _print_quality_report(results: dict):
-    """Print a human-readable HSI table to the terminal."""
+    """Prints an HSI table to the terminal."""
     _COLOR = {1: '\033[92m', 2: '\033[93m', 4: '\033[91m'}  # green / yellow / red
     _RESET = '\033[0m'
     _GRAY  = '\033[90m'
@@ -318,8 +318,8 @@ def _print_quality_report(results: dict):
 #
 # Payload format: 'SIGNAL_QUALITY_DROP:TP9'  (channel name appended after colon)
 # This lets analysis code filter epochs by both event type and affected channel.
-#
-# Usage:
+# 
+# in PsychoPy script implement like this:
 #   monitor = SignalQualityMonitor(marker_outlet, inlet)
 #   monitor.start()
 #   # ... run experiment ...
