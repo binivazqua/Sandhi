@@ -34,13 +34,34 @@ from psychopy.hardware import keyboard
 
 # Run 'Before Experiment' code from Serial_Begin
 import serial
+import os as _os
 # Run 'Before Experiment' code from EEG_Start_Code
 from eeg_lsl_bridge import verify_eeg_stream, SandhiMarkerOutlet, MARKERS
 import time
 
-verify_eeg_stream()      # aborta si no hay stream EEG
+_NO_HARDWARE = _os.environ.get('SANDHI_NO_HARDWARE', '0') == '1'
 
-marker_outlet = SandhiMarkerOutlet()
+if _NO_HARDWARE:
+    # Mock mode: bypass EEG stream and serial ports for UI testing without hardware.
+    # Activate with:  SANDHI_NO_HARDWARE=1 python Sandi_Interface_V2.py
+    print("[Sandhi] *** SANDHI_NO_HARDWARE=1 — running in mock mode, no EEG or serial ***")
+
+    class _MockMarkerOutlet:
+        def push(self, marker, verbose=True):
+            if verbose:
+                print(f"[Sandhi][MOCK] Marker: '{marker}'")
+
+    class _MockSerial:
+        in_waiting = 0
+        def readline(self): return b''
+        def close(self): pass
+
+    marker_outlet = _MockMarkerOutlet()
+    esp32   = _MockSerial()
+    esp32_1 = _MockSerial()
+else:
+    verify_eeg_stream()      # aborta si no hay stream EEG
+    marker_outlet = SandhiMarkerOutlet()
 
 time.sleep(0.5)
 # Run 'Before Experiment' code from code_2
@@ -415,8 +436,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         flipHoriz=False, flipVert=False,
         texRes=128.0, interpolate=True, depth=-2.0)
     # Run 'Begin Experiment' code from Serial_Begin
-    esp32 = serial.Serial('COM3', 115200, timeout=0.01)
-    esp32_1 = serial.Serial('COM4', 115200, timeout=0.01)
+    if not _NO_HARDWARE:
+        esp32   = serial.Serial('COM3', 115200, timeout=0.01)
+        esp32_1 = serial.Serial('COM4', 115200, timeout=0.01)
     # Run 'Begin Experiment' code from EEG_Start_Code
     marker_outlet.push(MARKERS.BLOCK_START)
     print("EEG marker sent: BLOCK_START")
