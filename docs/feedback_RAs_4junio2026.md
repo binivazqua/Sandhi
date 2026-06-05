@@ -13,7 +13,7 @@ Todas las implementaciones sugeridas fueron iteradas en la V2!
 
 ## Lo que está perfecto:
 
-- `verify_eeg_stream()` perfectamente implementado desde el módulo `eeg_lsl_bridge.py`.
+- `verify_eeg_stream()` bien importado desde el módulo `eeg_lsl_bridge.py`.
 - todos los markers importados correctamente desde `eeg_lsl_bridge.py`.
 - Fix de timing en markers de respuesta (`RESP_BUTTON`).
 - Implementación de markers `RESP_LEVER_L` / `RESP_LEVER_R` con timing perfecto.
