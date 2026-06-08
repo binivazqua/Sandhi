@@ -1,1 +1,7 @@
-mne
+pyxdf==1.17.4
+mne==1.12.1
+numpy==2.2.6
+scipy==1.17.1
+matplotlib==3.10.9
+pandas==3.0.3
+rich==15.0.0
