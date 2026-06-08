@@ -5,6 +5,7 @@ data/
 
 # Virtual environments
 eno_venv/
+sandhi-env/
 venv/
 .venv/
 env/
