@@ -6,6 +6,7 @@ data/
 # Virtual environments
 eno_venv/
 sandhi-env/
+interface-env/
 venv/
 .venv/
 env/
