@@ -77,7 +77,10 @@ def load_xdf(filepath: str):
     marker_labels : list[str]
     marker_times  : np.ndarray (n_markers,)
     """
-    streams, _ = pyxdf.load_xdf(filepath)
+    resolved = Path(filepath).resolve()
+    if not resolved.exists():
+        raise FileNotFoundError(f"XDF file not found: {resolved}")
+    streams, _ = pyxdf.load_xdf(str(resolved))
 
     eeg_stream = marker_stream = None
     for s in streams:
