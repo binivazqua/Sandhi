@@ -119,6 +119,8 @@ def plot_eeg_markers(
     marker_times: np.ndarray,
     title: str = "",
     seconds: float | None = None,
+    t_start: float | None = None,
+    t_end: float | None = None,
     outpath: str | None = None,
     show: bool = True,
 ) -> Path | None:
@@ -136,7 +138,9 @@ def plot_eeg_markers(
     marker_labels : string labels, one per marker event
     marker_times  : absolute LSL timestamps for each marker
     title         : figure title (appears at top)
-    seconds       : how many seconds to show (None = full recording)
+    seconds       : duration from start to show, e.g. 30 → [0, 30 s]
+    t_start       : interval start in seconds from recording start
+    t_end         : interval end in seconds from recording start
     outpath       : if given, saves a PNG here
     show          : if True, opens an interactive window
 
@@ -151,8 +155,21 @@ def plot_eeg_markers(
     t0   = times[0]                                # anchor to t=0
 
     rel_times = times - t0                         # seconds from recording start
-    win = rel_times[-1] if seconds is None else min(float(seconds), rel_times[-1])
-    mask = rel_times <= win
+    rec_end   = rel_times[-1]
+
+    # ── resolve window bounds ─────────────────────────────────────────────────
+    if t_start is not None or t_end is not None:
+        win_start = float(t_start) if t_start is not None else 0.0
+        win_end   = float(t_end)   if t_end   is not None else rec_end
+        win_end   = min(win_end, rec_end)
+    elif seconds is not None:
+        win_start = 0.0
+        win_end   = min(float(seconds), rec_end)
+    else:
+        win_start = 0.0
+        win_end   = rec_end
+
+    mask      = (rel_times >= win_start) & (rel_times <= win_end)
     rel_times = rel_times[mask]
     eeg       = eeg[:, mask]
 
@@ -191,7 +208,7 @@ def plot_eeg_markers(
     seen_labels = {}                                   # track which labels got a legend entry
     for label, mtime in zip(marker_labels, marker_times):
         rel_mt = mtime - t0
-        if rel_mt < 0 or rel_mt > win:
+        if rel_mt < win_start or rel_mt > win_end:
             continue
         color = MARKER_COLORS.get(label, FALLBACK_COLOR)
         lw    = STYLE["marker_lw"]
@@ -208,7 +225,7 @@ def plot_eeg_markers(
     ax.set_yticks(y_ticks)
     ax.set_yticklabels(y_labels, fontsize=STYLE["label_size"])
     ax.set_xlabel("Time (s)", fontsize=STYLE["font_size"])
-    ax.set_xlim(0, win)
+    ax.set_xlim(win_start, win_end)
     ax.yaxis.set_tick_params(length=0)
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     ax.grid(axis="x", alpha=STYLE["grid_alpha"], linewidth=0.5)
@@ -227,7 +244,7 @@ def plot_eeg_markers(
 
     # ── info annotation ───────────────────────────────────────────────────────
     ax.annotate(
-        f"{sfreq:.0f} Hz  ·  {n_ch} ch  ·  {win:.1f} s shown",
+        f"{sfreq:.0f} Hz  ·  {n_ch} ch  ·  {win_start:.1f}–{win_end:.1f} s",
         xy=(0.01, 0.01), xycoords="axes fraction",
         fontsize=7, color="#888888", va="bottom",
     )
@@ -256,10 +273,16 @@ def main() -> None:
     parser.add_argument("--file",    required=True,        help="Path to .xdf recording")
     parser.add_argument("--outdir",  default="./output",   help="Output directory (default: ./output)")
     parser.add_argument("--seconds", type=float, default=None,
-                        help="Seconds of data to show (default: full recording)")
+                        help="Duration from start, e.g. --seconds 30 shows 0–30 s")
+    parser.add_argument("--interval", type=float, nargs=2, metavar=("START", "END"),
+                        default=None,
+                        help="Time interval in seconds, e.g. --interval 45 75")
     parser.add_argument("--title",   default="",           help="Figure title")
     parser.add_argument("--no-show", action="store_true",  help="Skip interactive window; save only")
     args = parser.parse_args()
+
+    if args.seconds and args.interval:
+        raise SystemExit("Error: --seconds and --interval are mutually exclusive.")
 
     # Set backend once, before pyplot is imported anywhere.
     # Agg = headless/save-only.  Default = let matplotlib pick (MacOSX on macOS).
@@ -270,14 +293,22 @@ def main() -> None:
 
     eeg, times, ch_names, sfreq, marker_labels, marker_times = load_xdf(args.file)
 
-    stem    = Path(args.file).stem
-    outpath = str(Path(args.outdir) / f"{stem}_eeg_markers.png")
+    stem = Path(args.file).stem
+    if args.interval:
+        t_start, t_end = args.interval
+        suffix  = f"_t{int(t_start)}-{int(t_end)}s"
+    else:
+        t_start = t_end = None
+        suffix  = f"_0-{int(args.seconds)}s" if args.seconds else ""
+    outpath = str(Path(args.outdir) / f"{stem}{suffix}_eeg_markers.png")
 
     plot_eeg_markers(
         eeg, times, ch_names, sfreq,
         marker_labels, marker_times,
         title   = args.title or stem,
         seconds = args.seconds,
+        t_start = t_start,
+        t_end   = t_end,
         outpath = outpath,
         show    = not args.no_show,
     )
