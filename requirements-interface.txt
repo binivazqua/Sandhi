@@ -1,0 +1,17 @@
+# interface-env — LSL acquisition + Muse 2 streaming layer
+#
+# This env runs:
+#   software/eeg_lsl_bridge.py   (marker outlet, stream verification)
+#   software/run_experiment.py   (pre-flight + PsychoPy launcher)
+#
+# PsychoPy is NOT listed here — install it via its standalone macOS app:
+#   https://www.psychopy.org/download.html
+# The standalone app ships its own Python; this env handles only the
+# LSL / EEG bridge that PsychoPy scripts import at runtime.
+
+pylsl==1.18.2
+muselsl==2.4.1
+pyserial==3.5
+numpy==2.2.6
+scipy==1.17.1
+rich==15.0.0
