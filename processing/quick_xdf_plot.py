@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-quick_xdf_plot.py — poster-quality EEG + marker visualiser for .xdf files
+quick_xdf_plot.py (mainly) for poster-quality EEG + marker visualiser for .xdf files after trials!!
 ==========================================================================
-Loads any .xdf recorded with LabRecorder (Muse 2, Unicorn, etc.),
+Loads any .xdf recorded with LabRecorder (As of Sandhi Beta 01, Muse 2),
 stacks EEG channels vertically, and draws colour-coded marker lines.
 
-Usage
+HOW TO USE!?!?
 -----
     python quick_xdf_plot.py --file recording.xdf
     python quick_xdf_plot.py --file recording.xdf --seconds 30 --title "Trial 1"
