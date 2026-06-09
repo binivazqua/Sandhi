@@ -20,9 +20,6 @@ import os
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")          # headless by default; switched to TkAgg/Qt if --show is used
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 import numpy as np
 import pyxdf
 from rich.console import Console
@@ -75,7 +72,10 @@ def load_xdf(filepath: str):
     marker_labels : list[str]
     marker_times  : np.ndarray (n_markers,)
     """
-    streams, _ = pyxdf.load_xdf(filepath)
+    resolved = Path(filepath).resolve()
+    if not resolved.exists():
+        raise FileNotFoundError(f"XDF file not found: {resolved}")
+    streams, _ = pyxdf.load_xdf(str(resolved))
 
     eeg_stream = marker_stream = None
     for s in streams:
@@ -144,6 +144,9 @@ def plot_eeg_markers(
     -------
     Path to saved PNG, or None if not saved.
     """
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as mticker
+
     n_ch = eeg.shape[0]
     t0   = times[0]                                # anchor to t=0
 
@@ -239,7 +242,6 @@ def plot_eeg_markers(
         console.log(f"[green]Saved[/green]  {saved}  ({STYLE['dpi']} dpi)")
 
     if show:
-        matplotlib.use("TkAgg")   # switch to interactive backend for display
         plt.show()
     plt.close(fig)
     return saved
@@ -258,6 +260,11 @@ def main() -> None:
     parser.add_argument("--title",   default="",           help="Figure title")
     parser.add_argument("--no-show", action="store_true",  help="Skip interactive window; save only")
     args = parser.parse_args()
+
+    # Set backend once, before pyplot is imported anywhere.
+    # Agg = headless/save-only.  Default = let matplotlib pick (MacOSX on macOS).
+    if args.no_show:
+        matplotlib.use("Agg")
 
     console.rule("[bold cyan]quick_xdf_plot[/bold cyan]")
 
