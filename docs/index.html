@@ -652,6 +652,89 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
     }
+
+    /* ─── MILESTONES ──────────────────────────────────────────────── */
+    .milestone-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .milestone-grid { grid-template-columns: 1fr; }
+    }
+
+    .milestone-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 28px;
+    }
+
+    .milestone-card h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .milestone-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .milestone-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .pill-success {
+      background: rgba(100, 180, 130, 0.18);
+      color: #2e7d52;
+    }
+
+    /* ─── MEDIA PLACEHOLDERS ──────────────────────────────────────── */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .media-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .media-placeholder {
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--text-tertiary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .media-grid .media-placeholder {
+      aspect-ratio: 4/3;
+      min-height: 110px;
+    }
+
+    .video-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      min-height: 160px;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -665,6 +748,7 @@
     <ul class="nav-links">
       <li><a href="#science">Research</a></li>
       <li><a href="#protocol">Protocol</a></li>
+      <li><a href="#milestones">Milestones</a></li>
       <li><a href="#team">Team</a></li>
       <li><a href="#support">Support</a></li>
     </ul>
@@ -789,8 +873,8 @@
 
       <!-- Electrode diagram + hardware -->
       <div class="electrode-section">
-        <!-- Top-view head SVG with 10-20 electrode positions -->
-        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Electrode placement diagram: Cz, FCz, Fz, C3, C4, F3, F4, Pz">
+        <!-- Muse 2 electrode placement: AF7, AF8 (frontal) + TP9, TP10 (temporal-parietal) + FPz reference -->
+        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Muse 2 electrode placement: AF7 and AF8 frontal, TP9 and TP10 temporal-parietal, FPz forehead reference">
           <!-- Head outline -->
           <ellipse cx="100" cy="108" rx="82" ry="98" stroke="#C9C2E8" stroke-width="0.75" />
           <!-- Nose -->
@@ -803,56 +887,44 @@
           <line x1="100" y1="12" x2="100" y2="205" stroke="#E8E2F5" stroke-width="0.5" />
           <line x1="18" y1="108" x2="182" y2="108" stroke="#E8E2F5" stroke-width="0.5" />
 
-          <!-- Electrodes (filled = active, outline = reference grid) -->
-          <!-- Fz: slightly forward of center top -->
-          <circle cx="100" cy="72" r="5" fill="#7B6FC4" />
-          <text x="108" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Fz</text>
+          <!-- FPz: forehead reference (dashed outline, not active EEG) -->
+          <circle cx="100" cy="44" r="4" fill="none" stroke="#A89FD8" stroke-width="0.75" stroke-dasharray="2 2" />
+          <text x="107" y="48" font-size="9" fill="#9490A8" font-family="JetBrains Mono, monospace">FPz</text>
+          <text x="107" y="58" font-size="7" fill="#C9C2E8" font-family="JetBrains Mono, monospace">ref</text>
 
-          <!-- FCz: between Fz and Cz -->
-          <circle cx="100" cy="90" r="5" fill="#7B6FC4" />
-          <text x="108" y="94" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">FCz</text>
+          <!-- AF7: left anterior frontal -->
+          <circle cx="64" cy="72" r="5" fill="#7B6FC4" />
+          <text x="30" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">AF7</text>
 
-          <!-- Cz: center -->
-          <circle cx="100" cy="108" r="5.5" fill="#A89FD8" />
-          <text x="108" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Cz</text>
+          <!-- AF8: right anterior frontal -->
+          <circle cx="136" cy="72" r="5" fill="#7B6FC4" />
+          <text x="143" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">AF8</text>
 
-          <!-- C3: left -->
-          <circle cx="64" cy="108" r="5" fill="#7B6FC4" />
-          <text x="36" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C3</text>
+          <!-- TP9: left temporal-parietal (near left ear) -->
+          <circle cx="28" cy="118" r="5" fill="#7B6FC4" />
+          <text x="36" y="115" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">TP9</text>
 
-          <!-- C4: right -->
-          <circle cx="136" cy="108" r="5" fill="#7B6FC4" />
-          <text x="142" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C4</text>
-
-          <!-- F3: left-forward -->
-          <circle cx="70" cy="84" r="5" fill="#7B6FC4" />
-          <text x="40" y="88" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">F3</text>
-
-          <!-- F4: right-forward -->
-          <circle cx="130" cy="84" r="5" fill="#7B6FC4" />
-          <text x="137" y="88" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">F4</text>
-
-          <!-- Pz: slightly back of center -->
-          <circle cx="100" cy="138" r="5" fill="#7B6FC4" />
-          <text x="108" y="142" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Pz</text>
+          <!-- TP10: right temporal-parietal (near right ear) -->
+          <circle cx="172" cy="118" r="5" fill="#7B6FC4" />
+          <text x="138" y="115" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">TP10</text>
         </svg>
 
         <div>
           <span class="proto-label">Current hardware</span>
-          <h3 style="margin-bottom:0.75rem;">Neuroelectrics Enobio 8</h3>
+          <h3 style="margin-bottom:0.75rem;">Muse 2</h3>
           <p style="font-size:0.88rem; margin-bottom:0.75rem;">
-            8-channel wireless EEG · 24-bit resolution · 500 Hz sampling rate. Electrode placement targets the primary motor cortex (M1), supplementary motor area, and prefrontal cortex — the regions most implicated in motor preparation and impulse control.
+            4-channel wireless EEG (AF7, AF8, TP9, TP10) · 256 Hz sampling rate · Bluetooth LE. Data streamed via Lab Streaming Layer (LSL) to LabRecorder for timestamped acquisition. Electrode coverage spans anterior frontal and temporal-parietal regions — sufficient for readiness potential detection and synchronization validation.
           </p>
           <p style="font-size:0.85rem; margin-bottom:1rem; color:var(--text-tertiary);">
-            Next acquisition target: <strong style="color:var(--accent-primary);">Unicorn Hybrid Black</strong> (g.tec) — active dry electrodes, higher channel density, purpose-built for RP research. We won €1,000 at g.tec BR4IN.IO Spring School 2026 toward this goal.
+            Next hardware: <strong style="color:var(--accent-primary);">Unicorn Hybrid Black</strong> (g.tec) — arriving June 2026. 8 active dry EEG channels, purpose-built for RP research. Funded in part by our €1,000 award at g.tec BR4IN.IO Spring School 2026.
           </p>
           <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
-            <span class="pill">Enobio 8</span>
-            <span class="pill">NIC2</span>
+            <span class="pill">Muse 2</span>
+            <span class="pill">LSL</span>
             <span class="pill">MNE-Python</span>
-            <span class="pill">500 Hz</span>
-            <span class="pill">Wet gel</span>
-            <span class="pill">Dry gel</span>
+            <span class="pill">256 Hz</span>
+            <span class="pill">Bluetooth LE</span>
+            <span class="pill">Dry electrodes</span>
           </div>
         </div>
       </div>
@@ -913,6 +985,96 @@
       </div>
     </div>
   </section>
+
+  <!-- MILESTONES -->
+  <section id="milestones">
+    <div class="inner">
+      <span class="label label-accent">Research milestones · June 2026</span>
+      <h2>From proof of concept to validated infrastructure</h2>
+      <p style="max-width:620px; font-weight:300;">
+        Phase 01 is complete. Sandhi has moved from internal prototyping to a validated pipeline with external participants. Here is what we confirmed, refined, and documented openly.
+      </p>
+
+      <div class="milestone-grid">
+        <div class="milestone-card">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+            <span class="pill pill-success">Completado</span>
+            <span class="milestone-tag">Fase 01 · Pilot Trial</span>
+          </div>
+          <h3>End-to-end pipeline validated</h3>
+          <p>Validated the full data acquisition chain: Muse 2 → LSL → LabRecorder. Temporal data integrity confirmed across all pipeline stages with external participants — the project's first milestone beyond solo prototyping.</p>
+        </div>
+
+        <div class="milestone-card">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+            <span class="pill pill-success">Validado</span>
+            <span class="milestone-tag">Logro técnico</span>
+          </div>
+          <h3>Atomic sync: jitter &lt; 10 ms</h3>
+          <p>Confirmed sub-10 ms jitter between visual stimulus onset and EEG marker — meeting gold-standard thresholds for wireless BCIs. Stimulus-to-marker synchronization is production-ready for RP research.</p>
+        </div>
+
+        <div class="milestone-card">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+            <span class="pill">Refined</span>
+            <span class="milestone-tag">Refinamiento científico</span>
+          </div>
+          <h3>The preparation biomarker</h3>
+          <p>Following clinical advisory, we refined our working definition: the Readiness Potential (RP) and beta desynchronization are studied jointly as a precognitive motor preparation biomarker — mapping the neural transition from impulse to action.</p>
+        </div>
+
+        <div class="milestone-card">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+            <span class="pill pill-outline">Documentado</span>
+            <span class="milestone-tag">Transparencia en la señal</span>
+          </div>
+          <h3>Signal quality: real-world variables</h3>
+          <p>Openly documented: hair density, eyeglass use, and cranial morphology are critical modulators of HSI signal quality in uncontrolled environments. These are now tracked variables in our acquisition protocol, not unacknowledged confounds.</p>
+        </div>
+      </div>
+
+      <!-- ── Media containers — team photos and session video to be added ── -->
+      <div style="margin-top:3rem;">
+        <span class="label">Field documentation</span>
+        <div class="media-grid">
+          <div class="media-placeholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+              <rect x="3" y="6" width="18" height="14" rx="2"/>
+              <circle cx="12" cy="13" r="3"/>
+              <path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+            </svg>
+            <span>Photo · coming soon</span>
+          </div>
+          <div class="media-placeholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+              <rect x="3" y="6" width="18" height="14" rx="2"/>
+              <circle cx="12" cy="13" r="3"/>
+              <path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+            </svg>
+            <span>Photo · coming soon</span>
+          </div>
+          <div class="media-placeholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+              <rect x="3" y="6" width="18" height="14" rx="2"/>
+              <circle cx="12" cy="13" r="3"/>
+              <path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+            </svg>
+            <span>Photo · coming soon</span>
+          </div>
+        </div>
+        <div class="media-placeholder video-placeholder">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Video · coming soon</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule" />
 
   <!-- TEAM -->
   <section id="team">
