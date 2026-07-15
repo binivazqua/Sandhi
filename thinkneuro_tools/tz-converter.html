@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cohort Meeting Time Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8FF;
+    --surface:#F0ECF8;
+    --surface-2:#E8E2F5;
+    --accent:#7B6FC4;
+    --accent-soft:#A89FD8;
+    --accent-mute:#C9C2E8;
+    --ink:#2C2836;
+    --cream:#F5EFE0;
+    --border:rgba(123,111,196,0.35);
+    --night:#B99BB0;   /* muted rose, rough hours */
+    --edge:#C9A96A;    /* warm cream-family amber, early/late */
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"DM Sans",system-ui,sans-serif;
+    font-weight:300;
+    line-height:1.5;
+    padding:28px 20px 40px;
+  }
+  .wrap{max-width:620px;margin:0 auto;}
+  .eyebrow{
+    font-family:"JetBrains Mono",monospace;
+    font-size:11px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 6px;
+  }
+  h1{
+    font-family:"DM Serif Display",serif;
+    font-weight:400;font-size:30px;line-height:1.1;margin:0 0 4px;
+  }
+  .sub{font-size:14px;color:var(--accent);margin:0 0 24px;opacity:0.85;}
+
+  .controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 16px;
+    background:var(--surface);
+    border:0.5px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:10px;
+  }
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  label{
+    font-family:"JetBrains Mono",monospace;
+    font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);
+  }
+  input,select{
+    font-family:"DM Sans",sans-serif;font-size:15px;color:var(--ink);
+    background:var(--bg);
+    border:0.5px solid var(--border);
+    border-radius:8px;padding:9px 11px;width:100%;
+    appearance:none;
+  }
+  input:focus,select:focus{outline:2px solid var(--accent-soft);outline-offset:1px;border-color:var(--accent);}
+  select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%237B6FC4' stroke-width='1.4'/></svg>");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;}
+
+  .refline{
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    font-size:13px;color:var(--accent);margin:2px 0 18px;padding-left:2px;
+  }
+  .refline strong{font-weight:500;color:var(--ink);}
+  .reftime{font-family:"JetBrains Mono",monospace;}
+
+  .legend{
+    display:flex;gap:16px;flex-wrap:wrap;
+    font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:0.06em;
+    color:var(--accent);margin:0 2px 12px;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .dot.ok{background:var(--accent);}
+  .dot.edge{background:var(--edge);}
+  .dot.night{background:var(--night);}
+
+  ul.roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;}
+  li.row{
+    display:grid;
+    grid-template-columns:14px 1fr auto;
+    align-items:center;gap:12px;
+    padding:12px 4px;
+    border-bottom:0.5px solid var(--border);
+  }
+  li.row:last-child{border-bottom:none;}
+  .bar{width:3px;height:34px;border-radius:2px;background:var(--accent-mute);}
+  .bar.ok{background:var(--accent);}
+  .bar.edge{background:var(--edge);}
+  .bar.night{background:var(--night);}
+  .who{display:flex;flex-direction:column;gap:1px;min-width:0;}
+  .name{font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .name .role{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-left:7px;}
+  .zone{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);opacity:0.8;}
+  .zone .flag{color:var(--edge);}
+  .localtime{text-align:right;font-family:"JetBrains Mono",monospace;}
+  .localtime .t{font-size:16px;font-weight:500;color:var(--ink);}
+  .localtime .d{font-size:10px;letter-spacing:0.05em;color:var(--accent);display:block;}
+  .localtime .d.shift{color:var(--edge);}
+
+  .foot{
+    margin-top:22px;font-size:12px;color:var(--accent);opacity:0.85;
+    border-top:0.5px solid var(--border);padding-top:14px;line-height:1.6;
+  }
+  .foot code{font-family:"JetBrains Mono",monospace;font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:4px;color:var(--ink);}
+  @media (max-width:440px){
+    .controls{grid-template-columns:1fr;}
+    h1{font-size:25px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Neurodevelopmental Disorders · Cohort</p>
+  <h1>Meeting Time Converter</h1>
+  <p class="sub">Set the meeting once. See everyone's local time.</p>
+
+  <div class="controls">
+    <div class="field">
+      <label for="date">Meeting date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="field">
+      <label for="time">Meeting time</label>
+      <input type="time" id="time">
+    </div>
+    <div class="field full">
+      <label for="ref">In this time zone</label>
+      <select id="ref">
+        <option value="America/Los_Angeles">Pacific — PDT/PST (ThinkNeuro standard)</option>
+        <option value="America/Denver">Mountain — MDT/MST</option>
+        <option value="America/Chicago">Central US — CDT/CST</option>
+        <option value="America/Mexico_City">Mexico City — CST (Bini)</option>
+        <option value="Asia/Kolkata">India — IST</option>
+        <option value="Asia/Kuala_Lumpur">Malaysia/SG — +08</option>
+        <option value="UTC">UTC</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="refline">
+    <span>Reference:</span>
+    <strong id="reflabel">—</strong>
+    <span class="reftime" id="reftime"></span>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot ok"></i> 9am–7pm · good</span>
+    <span><i class="dot edge"></i> 7–9am / 7–10pm · edge</span>
+    <span><i class="dot night"></i> late night · avoid</span>
+  </div>
+
+  <ul class="roster" id="roster"></ul>
+
+  <div class="foot">
+    Times use each person's real time zone, so daylight saving is handled automatically.
+    To edit the team, open this file and update the <code>TEAM</code> list near the top of the script.
+    Entries marked <span style="color:var(--edge)">⚑</span> need their zone confirmed.
+  </div>
+</div>
+
+<script>
+/* ─── EDIT YOUR TEAM HERE ───────────────────────────────
+   tz = IANA zone name (handles DST automatically).
+   confirm:true  → zone is a guess, shows a ⚑ flag.
+   Common zones: America/Los_Angeles, America/Denver,
+   America/Chicago, America/Mexico_City, Asia/Kolkata      */
+const TEAM = [
+  { name:"Biniza Vázquez", role:"Associate",    tz:"America/Mexico_City" },
+  { name:"Anvi Santlani",  role:"Co-Associate", tz:"Asia/Singapore" },
+  { name:"Juri Davis",       tz:"America/Denver" },
+  { name:"Crispin Anca",     tz:"America/Los_Angeles" },
+  { name:"Rishika Kohli",    tz:"America/Chicago" },
+  { name:"Norway Vo",        tz:"America/Los_Angeles" },
+  { name:"Haley Teeramaythawit", tz:"America/Los_Angeles" },
+  { name:"Ria Venkatrajan",  tz:"America/Los_Angeles" },
+  { name:"Prisha Lal",       tz:"America/Los_Angeles" },
+  { name:"Natalie Kreakopyan", tz:"America/Los_Angeles" },
+  { name:"Latisha Ramadian", tz:"Asia/Makassar" },  /* WITA · Central Indonesia · UTC+8 */
+];
+/* ──────────────────────────────────────────────────────── */
+
+const dateEl = document.getElementById('date');
+const timeEl = document.getElementById('time');
+const refEl  = document.getElementById('ref');
+const roster = document.getElementById('roster');
+const reflabel = document.getElementById('reflabel');
+const reftime  = document.getElementById('reftime');
+
+// Convert a wall-clock time in a given IANA zone to a real UTC instant.
+function zonedWallToUtc(y, mo, d, h, mi, tz){
+  const guess = Date.UTC(y, mo-1, d, h, mi);
+  const dtf = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour12:false,
+    year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const p = {}; for(const part of dtf.formatToParts(new Date(guess))) p[part.type]=part.value;
+  const seen = Date.UTC(+p.year, +p.month-1, +p.day, (+p.hour)%24, +p.minute, +p.second);
+  return new Date(guess - (seen - guess));
+}
+
+function partsInZone(instant, tz){
+  const dtf = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour12:false,
+    weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const p={}; for(const part of dtf.formatToParts(instant)) p[part.type]=part.value;
+  return p; // {weekday, month, day, year, hour, minute}
+}
+
+function fmt12(hour24, minute){
+  const h = ((+hour24)%24);
+  const ampm = h<12 ? 'AM':'PM';
+  let hh = h%12; if(hh===0) hh=12;
+  return `${hh}:${minute} ${ampm}`;
+}
+
+function quality(hour24){
+  const h = +hour24;
+  if(h>=9 && h<19) return 'ok';
+  if((h>=7 && h<9) || (h>=19 && h<22)) return 'edge';
+  return 'night';
+}
+
+function refDayNumber(instant, tz){
+  const p = partsInZone(instant, tz);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+function render(){
+  const [y,mo,d] = dateEl.value.split('-').map(Number);
+  const [h,mi]   = timeEl.value.split(':').map(Number);
+  if(!y||!mo||!d||isNaN(h)||isNaN(mi)) return;
+  const refTz = refEl.value;
+  const instant = zonedWallToUtc(y,mo,d,h,mi,refTz);
+
+  // reference readout
+  const rp = partsInZone(instant, refTz);
+  reflabel.textContent = refEl.options[refEl.selectedIndex].text.split('—')[0].trim();
+  reftime.textContent = `${rp.weekday} ${rp.month} ${rp.day} · ${fmt12(rp.hour,rp.minute)}`;
+  const refKey = `${rp.year}-${rp.month}-${rp.day}`;
+
+  roster.innerHTML = '';
+  TEAM.forEach(m=>{
+    const p = partsInZone(instant, m.tz);
+    const q = quality(p.hour);
+    const li = document.createElement('li'); li.className='row';
+
+    const bar = document.createElement('div'); bar.className='bar '+q;
+
+    const who = document.createElement('div'); who.className='who';
+    const nm = document.createElement('div'); nm.className='name';
+    nm.textContent = m.name;
+    if(m.role){ const r=document.createElement('span'); r.className='role'; r.textContent=m.role; nm.appendChild(r); }
+    const zn = document.createElement('div'); zn.className='zone';
+    zn.textContent = m.tz.split('/').pop().replace(/_/g,' ');
+    if(m.confirm){ const f=document.createElement('span'); f.className='flag'; f.textContent=' ⚑'; zn.appendChild(f); }
+    who.appendChild(nm); who.appendChild(zn);
+
+    const lt = document.createElement('div'); lt.className='localtime';
+    const t = document.createElement('span'); t.className='t'; t.textContent = fmt12(p.hour,p.minute);
+    const day = document.createElement('span'); day.className='d';
+    // day-shift indicator relative to reference date
+    const memKey = `${p.year}-${p.month}-${p.day}`;
+    let shiftTxt = `${p.weekday}`;
+    if(memKey !== refKey){
+      const memDate = new Date(`${p.month} ${p.day} ${p.year}`);
+      const refDate = new Date(`${rp.month} ${rp.day} ${rp.year}`);
+      const diff = Math.round((memDate - refDate)/86400000);
+      shiftTxt = `${p.weekday} (${diff>0?'+':''}${diff}d)`;
+      day.classList.add('shift');
+    }
+    day.textContent = shiftTxt;
+    lt.appendChild(t); lt.appendChild(day);
+
+    li.appendChild(bar); li.appendChild(who); li.appendChild(lt);
+    roster.appendChild(li);
+  });
+}
+
+// defaults: today, next round hour, Pacific
+(function init(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  dateEl.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  timeEl.value = `16:00`;
+  [dateEl,timeEl,refEl].forEach(el=>el.addEventListener('input',render));
+  render();
+})();
+</script>
+</body>
+</html>
