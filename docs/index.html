@@ -783,7 +783,7 @@
   <section class="hero" id="top">
     <div class="inner-narrow">
       <img src="./sandhi-logo.png" alt="" class="hero-logo" aria-hidden="true" />
-      <span class="hero-eyebrow">Sandhi Interface · Independent EEG Research · Puebla, México</span>
+      <span class="hero-eyebrow">Sandhi Interface · Independent EEG Research · Monterrey, México</span>
       <h1 class="hero-title">
         The brain acts. You find out after. Half a second before the impulse — what's there?
       </h1>
@@ -814,7 +814,10 @@
       <span class="label">Why this matters</span>
       <h2>The gap in clinical intervention</h2>
       <p style="max-width:620px; font-weight:300;">
-        Impulse control disorders — eating disorders, anxiety, addictions, compulsive behavior, self-harm — share a common mechanism. The brain prepares an action before conscious awareness of intent. Clinical intervention almost always arrives too late.
+        Automaticity is the shared mechanism across the compulsive spectrum — the same shift from decision to habit underlies OCD, addiction, and compulsive behavior. Every clinical tool available today measures a patient's distress — never whether the behavior itself has become automatic.
+      </p>
+      <p style="max-width:620px; font-weight:300;">
+        Sandhi measures that automaticity directly: testing whether the Readiness Potential — the neural signal that precedes a voluntary action — weakens once an action becomes compulsive. At what point does a habit stop being a decision and become automatic — and can we measure that before it becomes a diagnosis?
       </p>
 
       <div class="stat-block">
@@ -898,8 +901,8 @@
 
       <!-- Electrode diagram + hardware -->
       <div class="electrode-section">
-        <!-- Muse 2 electrode placement: AF7, AF8 (frontal) + TP9, TP10 (temporal-parietal) + FPz reference -->
-        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Muse 2 electrode placement: AF7 and AF8 frontal, TP9 and TP10 temporal-parietal, FPz forehead reference">
+        <!-- Unicorn Hybrid Black 8-channel montage: Fz, Cz (vertex/RP site), C3, C4, Pz, PO7, PO8, Oz — international 10-20 system -->
+        <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Unicorn Hybrid Black electrode montage: Fz, Cz, C3, C4, Pz, PO7, PO8, Oz, international 10-20 system">
           <!-- Head outline -->
           <ellipse cx="100" cy="108" rx="82" ry="98" stroke="#C9C2E8" stroke-width="0.75" />
           <!-- Nose -->
@@ -912,44 +915,53 @@
           <line x1="100" y1="12" x2="100" y2="205" stroke="#E8E2F5" stroke-width="0.5" />
           <line x1="18" y1="108" x2="182" y2="108" stroke="#E8E2F5" stroke-width="0.5" />
 
-          <!-- FPz: forehead reference (dashed outline, not active EEG) -->
-          <circle cx="100" cy="44" r="4" fill="none" stroke="#A89FD8" stroke-width="0.75" stroke-dasharray="2 2" />
-          <text x="107" y="48" font-size="9" fill="#9490A8" font-family="JetBrains Mono, monospace">FPz</text>
-          <text x="107" y="58" font-size="7" fill="#C9C2E8" font-family="JetBrains Mono, monospace">ref</text>
+          <!-- Fz: frontal midline -->
+          <circle cx="100" cy="69" r="5" fill="#7B6FC4" />
+          <text x="107" y="73" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Fz</text>
 
-          <!-- AF7: left anterior frontal -->
-          <circle cx="64" cy="72" r="5" fill="#7B6FC4" />
-          <text x="30" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">AF7</text>
+          <!-- Cz: vertex — primary RP site -->
+          <circle cx="100" cy="108" r="6" fill="#7B6FC4" />
+          <text x="109" y="112" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Cz</text>
 
-          <!-- AF8: right anterior frontal -->
-          <circle cx="136" cy="72" r="5" fill="#7B6FC4" />
-          <text x="143" y="76" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">AF8</text>
+          <!-- C3: left central -->
+          <circle cx="50" cy="108" r="5" fill="#7B6FC4" />
+          <text x="26" y="100" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C3</text>
 
-          <!-- TP9: left temporal-parietal (near left ear) -->
-          <circle cx="28" cy="118" r="5" fill="#7B6FC4" />
-          <text x="36" y="115" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">TP9</text>
+          <!-- C4: right central -->
+          <circle cx="150" cy="108" r="5" fill="#7B6FC4" />
+          <text x="157" y="100" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">C4</text>
 
-          <!-- TP10: right temporal-parietal (near right ear) -->
-          <circle cx="172" cy="118" r="5" fill="#7B6FC4" />
-          <text x="138" y="115" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">TP10</text>
+          <!-- Pz: parietal midline -->
+          <circle cx="100" cy="147" r="5" fill="#7B6FC4" />
+          <text x="107" y="151" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Pz</text>
+
+          <!-- PO7: left parieto-occipital -->
+          <circle cx="45" cy="168" r="5" fill="#7B6FC4" />
+          <text x="10" y="180" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">PO7</text>
+
+          <!-- PO8: right parieto-occipital -->
+          <circle cx="155" cy="168" r="5" fill="#7B6FC4" />
+          <text x="161" y="180" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">PO8</text>
+
+          <!-- Oz: occipital midline -->
+          <circle cx="100" cy="186" r="5" fill="#7B6FC4" />
+          <text x="107" y="199" font-size="9" fill="#5C5470" font-family="JetBrains Mono, monospace">Oz</text>
         </svg>
 
         <div>
           <span class="proto-label">Current hardware</span>
-          <h3 style="margin-bottom:0.75rem;">Muse 2</h3>
+          <h3 style="margin-bottom:0.75rem;">Unicorn Hybrid Black (g.tec)</h3>
           <p style="font-size:0.88rem; margin-bottom:0.75rem;">
-            4-channel wireless EEG (AF7, AF8, TP9, TP10) · 256 Hz sampling rate · Bluetooth LE. Data streamed via Lab Streaming Layer (LSL) to LabRecorder for timestamped acquisition. Electrode coverage spans anterior frontal and temporal-parietal regions — sufficient for readiness potential detection and synchronization validation.
+            8 active dry EEG channels — Fz, Cz, C3, C4, Pz, PO7, PO8, Oz — purpose-built for Readiness Potential research. Cz sits at the vertex over SMA, the classic RP site; Fz and Pz add frontal and parietal context. Acquired in part with our €1,000 award at g.tec BR4IN.IO Spring School 2026.
           </p>
           <p style="font-size:0.85rem; margin-bottom:1rem; color:var(--text-tertiary);">
-            Next hardware: <strong style="color:var(--accent-primary);">Unicorn Hybrid Black</strong> (g.tec) — arriving June 2026. 8 active dry EEG channels, purpose-built for RP research. Funded in part by our €1,000 award at g.tec BR4IN.IO Spring School 2026.
+            Pilot-phase hardware: <strong style="color:var(--accent-primary);">Muse 2</strong> — 4-channel wireless EEG (AF7, AF8, TP9, TP10), 256 Hz, Bluetooth LE, streamed via Lab Streaming Layer (LSL) to LabRecorder. Used to validate the end-to-end acquisition pipeline ahead of the move to Unicorn Hybrid Black.
           </p>
           <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
-            <span class="pill">Muse 2</span>
-            <span class="pill">LSL</span>
+            <span class="pill">Unicorn Hybrid Black</span>
+            <span class="pill">8 dry channels</span>
             <span class="pill">MNE-Python</span>
-            <span class="pill">256 Hz</span>
-            <span class="pill">Bluetooth LE</span>
-            <span class="pill">Dry electrodes</span>
+            <span class="pill pill-outline">Muse 2 · pilot phase</span>
           </div>
         </div>
       </div>
@@ -1100,18 +1112,18 @@
           <div class="pi-name">Biniza Verónica Vázquez Moreno</div>
           <div class="pi-role">Principal Investigator · Sandhi Interface</div>
           <p class="pi-bio">
-            Robotics and Systems Engineering student at Tecnológico de Monterrey Campus Puebla. NASA and MIT-adjacent experience. Leading Sandhi Interface as an independent research initiative with the conviction that meaningful neuroscience doesn't require institutional scale — only rigor, curiosity, and an honest research log.
+            Robotics and Systems Engineering student at Tecnológico de Monterrey Campus Monterrey. NASA and MIT-adjacent experience. Leading Sandhi Interface as an independent research initiative with the conviction that meaningful neuroscience doesn't require institutional scale — only rigor, curiosity, and an honest research log. Associate researcher in Dr. Shriya Srinivasan's lab (ThinkNeuro) and active member of the Neuromatch Academy research community.
           </p>
           <div class="pi-awards">
             <span class="pill">Premio Mujer Tec 2026</span>
-            <span class="pill">g.tec BR4IN.IO Spring School</span>
-            <span class="pill-outline pill">ITESM Puebla</span>
+            <span class="pill">g.tec BR4IN.IO Spring School · 100/100</span>
+            <span class="pill-outline pill">ITESM Campus Monterrey</span>
           </div>
         </div>
       </div>
 
       <div style="margin-top:2.5rem;">
-        <span class="label">Contributors</span>
+        <span class="label">Collaboration History</span>
         <div class="advisors-grid" style="grid-template-columns: repeat(3, 1fr);">
           <div class="advisor-card">
             <div class="advisor-name">Linda Michelle Silva Ramos</div>
@@ -1129,7 +1141,7 @@
       </div>
 
       <div style="margin-top:2rem;">
-        <span class="label">Advisors</span>
+        <span class="label">Advisor History</span>
         <div class="advisors-grid">
           <div class="advisor-card">
             <div class="advisor-name">Dr. Ana Luisa Santaolalla</div>
@@ -1138,6 +1150,14 @@
           <div class="advisor-card">
             <div class="advisor-name">Yolanda Fajardo</div>
             <p class="advisor-role">Clinical Psychologist<br/>Founder, Serena Mente Puebla<br/>Clinical framing</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Dra. Debbie Crystal Hernández Zárate</div>
+            <p class="advisor-role">Profesora de cátedra, Facultad de Mecatrónica<br/>Tec de Monterrey, Campus Puebla<br/>SNI III · Senior Member IEEE · IEEE Student Branch Counselor</p>
+          </div>
+          <div class="advisor-card">
+            <div class="advisor-name">Abraham Eli Vázquez Orduña</div>
+            <p class="advisor-role">Profesor de cátedra, Facultad de Mecatrónica<br/>Tec de Monterrey, Campus Puebla</p>
           </div>
           <!--<div class="advisor-card">
             <div class="advisor-name">Dr. Christoph Guger</div>
@@ -1206,7 +1226,7 @@
   <footer>
     <span class="footer-brand">Sandhi Interface</span>
     <p>
-      Independent EEG Research · Puebla, México ·
+      Independent EEG Research · Monterrey, México ·
       <a href="https://github.com/binivazqua/eno_love" target="_blank" rel="noopener">github.com/binivazqua/eno_love</a>
     </p>
   </footer>
