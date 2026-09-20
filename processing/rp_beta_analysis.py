@@ -21,6 +21,7 @@ from rich.table import Table
 
 import pyxdf
 import numpy as np
+import matplotlib.pyplot as plt
 
 XDF = 'data/sandhi_beta/sub_Debbie_run021_eeg.xdf' # replace WITH FILE PATH TO ANALYZE
 
@@ -63,7 +64,7 @@ def preprocess(data, sfreq, ch_names=None, verbose=True):
     Filtrado de la señal EEG.
     Decisiones CLAVE:
       1. Notch 60 Hz --> red eléctrica de México (NO 50 Hz europeo)
-      2. Pasa-banda 13-20 Hz --> low-beta (Gavenas et al. 2025)
+      2. Pasa-banda 12-20 Hz --> low-beta pero basado en (Gavenas et al. 2025)
     Orden: notch primero, luego pasa-banda.
     Ambos filtros son de FASE CERO (filtfilt / sosfiltfilt).
     Se cancela el phase delay para preservar la temporalidad lograda por RAs.
@@ -105,3 +106,88 @@ def preprocess(data, sfreq, ch_names=None, verbose=True):
 
 # CALL PREPROCESSING --- (vamos en orden, pero esto se puede optimizar luego)
 data_preprocessed = preprocess(data_keep, sfreq, ch_names=ch_names)
+
+# BLOCK 3: EPOCHING 
+# Checklist: 
+# 1. Ya cargamos xdf,
+# 2. Ya filtramos -> data_preprocessed = (2, 84096)
+# Por hacer: convertir a obj MNE para hacer el epoching.abs
+
+# FIRST: CREATE MNE INFO OBJECT ---
+info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
+raw  = mne.io.RawArray(data_preprocessed * 1e-6, info) # converto from picoVolts to Volts (MNE espera V)
+
+# THEN: EXTRACT ONLY TARGETED MARKERS AND CREATE MNE EVENTS ---
+# WE WORK WITH MARKERS' ARRAY "mrk"
+labels = [m[0] for m in mrk['time_series']]
+mrk_ts = np.array(mrk['time_stamps'])
+
+button_ts     = mrk_ts[[i for i, l in enumerate(labels) if l == 'RESP_BUTTON']]
+onsets_rel    = button_ts - ts[0]                  # removemos el offset del timestamp LSL para tener onsets relativos al inicio de la grabación
+onset_samples = (onsets_rel * sfreq).astype(int)    # multiplicamos por la sampling rate para convertir de segundos a muestras
+
+# MNE exige eventos en formato (n, 3): [muestra, valor_previo, id_evento].
+# Solo la col 1 (muestra) lleva información real; col 2 = relleno, por mutuo acuerdo es (0),
+# col 3 = id del tipo de evento (1 = RESP_BUTTON, definido en event_id).
+events   = np.column_stack([onset_samples,
+                            np.zeros(len(onset_samples), int),
+                            np.ones(len(onset_samples), int)])
+event_id = {'RESP_BUTTON': 1}
+
+# FINALLY: EPOCHING CON MNE --- de -2s a + 0.5s alrededor del marker.abs
+epochs = mne.Epochs(raw, events, event_id=event_id,
+                    tmin=-2.0, tmax=0.5,
+                    baseline=None,        # normalización a mano en bloque 4
+                    preload=True, verbose=False)
+
+print(f"[epoch] {len(epochs)} épocas | shape {epochs.get_data().shape}")
+# nueva shape, significa: (epochas, canales, muestras_por_época) 
+
+# BLOQUE 4: ANÁLISIS DE RPs Y BETA-ERD
+
+# Épocas del Bloque 3 (ya en memoria como `epochs`)
+data  = epochs.get_data()    # (8, 2, 641) -> épocas, canales, muestras
+times = epochs.times         # eje temporal: -2.0 a +0.5 s
+sfreq = epochs.info['sfreq']
+ch_names = epochs.ch_names
+
+# PASO 1 — Potencia instantánea PARA poder ver una curva y no sólo un escalar.
+# ============================================================
+power = data ** 2            # cuadrar cada muestra a V², todo positivo
+
+# Suavizar con ventana móvil de 200 ms (la potencia cruda es muy ruidosa)
+win = int(0.2 * sfreq)       # 200 ms -> no. de muestras
+kernel = np.ones(win) / win  # ventana de promedio simple
+power_smooth = np.empty_like(power)
+for ep in range(power.shape[0]):
+    for ch in range(power.shape[1]):
+        power_smooth[ep, ch] = np.convolve(power[ep, ch], kernel, mode='same')
+
+# PASO 2 — Normalización ERD/ERS vs baseline temprano (-2.0 a -1.5 s)
+# ============================================================
+bl_mask = (times >= -2.0) & (times <= -1.5)
+baseline_power = power_smooth[:, :, bl_mask].mean(axis=2, keepdims=True)
+
+# % de cambio: (P - P_baseline) / P_baseline * 100
+erd = (power_smooth - baseline_power) / baseline_power * 100 # sin unidades, es un % de cambio respecto al baseline
+
+
+# PASO 3 — Promediar las 8 épocas y graficar
+# ============================================================
+erd_mean = erd.mean(axis=0)  # promedio sobre épocas -> (2 canales, 641)
+
+fig, ax = plt.subplots(figsize=(9, 5))
+colors = {'AF7': '#7B6FC4', 'AF8': '#A89FD8'} # aesthetic
+for ch_idx, ch in enumerate(ch_names):
+    ax.plot(times, erd_mean[ch_idx], label=ch, color=colors.get(ch, 'gray'), lw=2)
+
+ax.axvline(0, color='#2C2836', ls='--', lw=1, label='RESP_BUTTON (movimiento)')
+ax.axhline(0, color='#9490A8', ls='-', lw=0.5)
+ax.axvspan(-2.0, -1.5, color='#C9C2E8', alpha=0.3, label='baseline')
+ax.set_xlabel('Tiempo relativo al movimiento (s)')
+ax.set_ylabel('Cambio de potencia beta (% vs baseline)')
+ax.set_title('Desincronización beta peri-movimiento — Sandhi Alpha 01')
+ax.legend(loc='upper left')
+ax.grid(True, alpha=0.2)
+plt.tight_layout()
+plt.savefig('beta_erd.png', dpi=130)
