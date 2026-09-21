@@ -16,12 +16,14 @@ verde/rojo intacto) — este script corre en una ventana aparte, en paralelo,
 solo para dejar constancia de "a qué hora pasó qué".
 
 Cómo alinear después en análisis:
-Tu grabación de Unicorn Suite tiene su propia hora de inicio (visible en el
-nombre del archivo o metadata). Resta esa hora de inicio a cada timestamp de
-este log para saber en qué segundo de la grabación EEG ocurrió cada fase.
-Es menos preciso que LSL (margen de error de uno o dos segundos, por la
-latencia de que tú presiones la tecla a tiempo), pero es suficiente para
-epochear bloques de minutos como los tuyos.
+Presiona [0] RECORDING_START en el instante exacto en que le das clic a
+"Record" en Unicorn Suite -- ese marcador, con su timestamp preciso del
+reloj de la compu, es tu ancla. El script sandhi_align_markers.py lo detecta
+solo y usa su hora exacta para calcular en qué fila/segundo de tu grabación
+EEG cayó cada fase del protocolo. Es menos preciso que LSL (margen de uno o
+dos segundos por tu tiempo de reacción al presionar la tecla), pero es
+suficiente para epochear bloques de minutos como los tuyos -- y ya no
+depende de que leas y escribas a mano la hora que muestra Unicorn Suite.
 
 Uso:
     python sandhi_markers_fallback.py
@@ -34,6 +36,7 @@ import time
 from datetime import datetime
 
 MARKERS = {
+    "0":  "RECORDING_START",  # presiona ESTA justo al darle "Record" en Unicorn Suite
     "1":  "SESSION_START",
     "2":  "HAIR_CHECK_START",
     "3":  "HAIR_CHECK_END",
@@ -105,7 +108,9 @@ def main():
         print_menu()
         print(f">> Sujeto: {subject_id}")
         print(f">> Log guardándose en: {filename}")
-        print(">> IMPORTANTE: anota también la hora de inicio de tu grabación en Unicorn Suite Recorder.\n")
+        print(">> IMPORTANTE: presiona [0] RECORDING_START en el instante exacto en que")
+        print("   le des clic a 'Record' en Unicorn Suite. Ese marcador es el ancla para")
+        print("   alinear después este log con tu grabación EEG.\n")
 
         while True:
             key = input(">> Marcador: ").strip()
